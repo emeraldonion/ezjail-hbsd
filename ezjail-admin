@@ -156,7 +156,7 @@ ezjail_updateports () {
 #
 
 # check for command
-[ $# -gt 0 ] || exerr ${ezjail_usage_ezjail}
+[ $# -gt 0 ] || exerr ${ezjail_usage_ezjailadmin}
 
 case "$1" in
 ######################## ezjail-admin CREATE ########################
