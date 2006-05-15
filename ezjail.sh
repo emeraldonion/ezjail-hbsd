@@ -150,6 +150,7 @@ attach_detach_pre ()
     case ${ezjail_imagetype} in
       crypto|bde) ezjail_mds="${ezjail_mds} ${ezjail_device%.bde}" ;;
       eli) ezjail_mds="${ezjail_mds} ${ezjail_device%.eli}" ;;
+      simple) ezjail_mds="${ezjail_mds} ${ezjail_device}" ;;
     esac
 
     # Remove soft link (which acts as a lock)
