@@ -671,7 +671,7 @@ config)
       detach_images keep
 
       # Remove soft link (which acts as a lock)
-      rm -f ${ezjail_rootdir}.device
+      [ -e /dev/${ezjail_imagedevice} ] || rm -f ${ezjail_rootdir}.device
       ;;
     esac
   ;;
