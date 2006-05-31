@@ -4,7 +4,7 @@
 # $FreeBSD$
 #
 # PROVIDE: ezjail
-# REQUIRE: LOGIN cleanvar
+# REQUIRE: LOGIN cleanvar sshd
 # BEFORE: securelevel
 # KEYWORD: nojail shutdown
 #
