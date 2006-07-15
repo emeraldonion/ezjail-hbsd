@@ -41,7 +41,7 @@ do_cmd()
   # If a jail list is given on command line, process it
   # If not, fetch it from our config directory
   if [ -n "$*" ]; then
-    ezjail_list=`echo -n $* | tr -c "[:alnum:] " _` 
+    ezjail_list=`echo -n $* | tr -c '[:alnum:] ' '_'` 
     ezjail_fromrc="NO"
   else
     ezjail_list=`find -X ${ezjail_prefix}/etc/ezjail/ 2> /dev/null | xargs rcorder | xargs basename -a`
