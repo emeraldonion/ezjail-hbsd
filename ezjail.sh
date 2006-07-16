@@ -44,7 +44,7 @@ do_cmd()
     ezjail_list=`echo -n $* | tr -c '[:alnum:] ' '_'` 
     ezjail_fromrc="NO"
   else
-    ezjail_list=`find -X ${ezjail_prefix}/etc/ezjail/ 2> /dev/null | xargs rcorder | xargs basename -a`
+    [ -d ${ezjail_prefix}/etc/ezjail/ ] && cd ${ezjail_prefix}/etc/ezjail/ && ezjail_list=`ls | xargs rcorder`
     echo -n "${message##_}"
   fi
 
