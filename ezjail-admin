@@ -507,7 +507,7 @@ setup|update)
 ######################## ezjail-admin INSTALL ########################
 install)
   # Clean variables, prevent polution
-  unset ezjail_release ezjail_ftphost ezjail_installmanpages ezjail_installports ezjail_installsources ezjail_dir ezjail_reldir ezjail_ftpserverqueried
+  unset ezjail_release ezjail_installmanpages ezjail_installports ezjail_installsources ezjail_dir ezjail_reldir ezjail_ftpserverqueried
 
   shift; while getopts :mpsh:r: arg; do case ${arg} in
     m) ezjail_installmanpages=" manpages";;
