@@ -321,7 +321,7 @@ create)
       esac
 
       # Format memory image
-      newfs /dev/${ezjail_device} || detach_images || exerr "Error: Could not newfs /dev/${ezjail_device}."
+      newfs -U /dev/${ezjail_device} || detach_images || exerr "Error: Could not newfs /dev/${ezjail_device}."
       # Create mount point and mount
       mkdir -p ${ezjail_rootdir} || detach_images || exerr "Error: Could not create jail root mount point ${ezjail_rootdir}."
       mount /dev/${ezjail_device} ${ezjail_rootdir} || detach_images || exerr "Error: Could not mount /dev/${ezjail_device} to ${ezjail_root}."
