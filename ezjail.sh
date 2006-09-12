@@ -65,6 +65,9 @@ do_cmd()
     eval ezjail_attachblocking=\"\$jail_${ezjail}_attachblocking\"
     eval ezjail_forceblocking=\"\$jail_${ezjail}_forceblocking\"
 
+    # Do we still have a root to run in?
+    [ ! -d "${ezjail_rootdir}" ] && echo " Warning: root directory ${ezjail_rootdir} of ${ezjail} does not exist." && continue
+
     [ "${ezjail_attachblocking}" = "YES" -o "${ezjail_forceblocking}" = "YES" ] && ezjail_blocking="YES" || unset ezjail_blocking
 
     # Cannot auto mount blocking jails without interrupting boot process
