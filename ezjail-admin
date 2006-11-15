@@ -656,7 +656,7 @@ config)
     if [ -n "${ezjail_image}" ]; then
       # Do we have an auto generated image name?
       if [ "${ezjail_rootdir}.img" = "${ezjail_image}" ]; then
-        ezjail_newimage=${ezjail_newrootdir}.img}
+        ezjail_new_image=${ezjail_new_rootdir}.img
         mv ${ezjail_image} ${ezjail_new_image}
       else
         ezjail_new_image=${ezjail_image}
