@@ -707,8 +707,8 @@ config)
 
     # usually that doesnt go smoothly, but the user wanted it
     # that way ;)
-    echo Jail has been renamed. You might want to check ${ezjail_new_config} and /etc/fstab.${ezjail_new_safename} to ensure everything has gone smoothly.
-    echo Also check settings in your Jail's /etc/ directory (especially /etc/rc.conf).
+    echo "Jail has been renamed. You might want to check ${ezjail_new_config} and /etc/fstab.${ezjail_new_safename} to ensure everything has gone smoothly."
+    echo "Also check settings in your Jail's /etc/ directory (especially /etc/rc.conf)."
 
     # reread config
     fetchjailinfo ${ezjail_new_safename}
