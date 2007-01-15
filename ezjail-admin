@@ -80,7 +80,7 @@ attach_images () {
 detach_images () {
   # unmount and detach memory disc
   if [ -n "${ezjail_imagedevice}" ]; then
-    umount ${ezjail_rootdir} > /dev/null
+    umount ${ezjail_rootdir} > /dev/null 2> /dev/null
     case ${ezjail_imagetype} in
       bde) gbde detach /dev/${ezjail_imagedevice} > /dev/null;;
       eli) geli detach /dev/${ezjail_imagedevice} > /dev/null;;
