@@ -774,6 +774,9 @@ config)
       # Attach images by type
       attach_images
 
+      # Clean image
+      fsck -t ufs -p -B /dev/${ezjail_device}
+
       mount /dev/${ezjail_device} ${ezjail_rootdir} || detach_images keep || exerr "Error: Could not mount /dev/${ezjail_device} to ${ezjail_rootdir}."
       # relink image device
       ln -s /dev/${ezjail_device} ${ezjail_rootdir}.device
@@ -806,7 +809,8 @@ config)
       # Attach images by type
       attach_images
 
-      fsck_ufs /dev/${ezjail_device}
+      # Clean image
+      fsck -t ufs /dev/${ezjail_device}
 
       # Detach images by type
       detach_images keep

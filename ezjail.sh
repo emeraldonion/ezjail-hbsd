@@ -133,7 +133,7 @@ attach_detach_pre ()
     esac
 
     # Clean image
-    fsck_ufs -F -p /dev/${ezjail_device}
+    fsck -t ufs -p -B /dev/${ezjail_device}
 
     # relink image device
     rm -f ${ezjail_rootdir}.device
