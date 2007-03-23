@@ -101,7 +101,12 @@ attach_detach_pre ()
     if [ -L "${ezjail_rootdir}.device" ]; then
       # Fetch destination of soft link
       ezjail_device=`stat -f "%Y" ${ezjail_rootdir}.device`
-      [ -e "${ezjail_device}" ] && echo "Jail image file ${ezjail} already attached as ${ezjail_device}. 'ezjail-admin config -i detach' it first." && return 1
+
+      mount -p -v | grep -E "^${ezjail_rootdir}.device.${ezjail_rootdir}" && echo "Jail image file ${ezjail} already attached as ${ezjail_device}. 'ezjail-admin config -i detach' it first." && return 1
+      mount -p -v | grep -E "^${ezjail_device}.${ezjail_rootdir}" && echo "Jail image file ${ezjail} already attached as ${ezjail_device}. 'ezjail-admin config -i detach' it first." && return 1
+
+      # Remove stale device link
+      rm -f ${ezjail_rootdir}.device
     fi
 
     # Create a memory disc from jail image
