@@ -632,6 +632,13 @@ install)
   [ "${ezjail_installports}" = "YES" ] && ezjail_updateports
 
   ;;
+######################## ezjail-admin SHORTCUT ########################
+*start|*stop)
+  [ -x "${ezjail_prefix}/etc/rc.d/ezjail" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail" $@
+  [ -x "${ezjail_prefix}/etc/rc.d/ezjail.sh" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail.sh" $@
+
+  exerr "Could not find ezjail's rc.d script in ${ezjail_prefix}/etc/rc.d/. You need to type it the long way."
+  ;;
 ######################## ezjail-admin CONFIG ########################
 config)
   # Clean variables, prevent polution
