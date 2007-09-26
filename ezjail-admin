@@ -724,7 +724,7 @@ archive)
   [ -n "${ezjail_id}" -a -z "${ezjail_force}" ] && exerr "Error: Jail appears to be still running, stop it first or [-f]orce archiving."
 
   # if no archive name was specified, make one up
-  [ -z "${ezjail_archive}" ] && ezjail_archive="${ezjail_safename}-`date +%Y%m%d%H%M.%S`.tar.bz2
+  [ -z "${ezjail_archive}" ] && ezjail_archive="${ezjail_safename}-`date +%Y%m%d%H%M.%S`.tar.bz2"
 
   # prepend archive directory
   ezjail_archive="${ezjail_archivedir%/}"/"${ezjail_archive}"
