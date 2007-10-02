@@ -758,8 +758,8 @@ archive)
     cd "${ezjail_rootdir}" || exerr "Error: can't cd to ${ezjail_root}."
     pax -wXtz -x ustar -f ${ezjail_archive} \
       -s:"^[^\\.].*/ezjail\\.conf\$":ezjail.conf: \
-      -s:"^[^\\.].*/${ezjail_safename}\$":prop.ezjail: \
-      -s:"^[^\\.].*/${ezjail_safename}.norun\$":prop.ezjail: \
+      -s:"^[^\\.].*/${ezjail_safename}\$":prop.ezjail_${ezjail_safename}: \
+      -s:"^[^\\.].*/${ezjail_safename}.norun\$":prop.ezjail_${ezjail_safename}: \
       -s:"etc/fstab.${ezjail_safename}\$":fstab.ezjail: \
       -s:"^\\.":ezjail: \
       "/etc/fstab.${ezjail_safename}" "${ezjail_config}" "${ezjail_etc}/ezjail.conf" . 2> /dev/null
