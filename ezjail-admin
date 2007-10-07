@@ -495,7 +495,7 @@ delete)
   # Clean variables, prevent polution
   unset ezjail_wipeme ezjail_forcestop
 
-  shift; while getopts :w arg; do case ${arg} in
+  shift; while getopts :wf arg; do case ${arg} in
     w) ezjail_wipeme="YES";;
     f) ezjail_forcestop="YES";;
     ?) exerr ${ezjail_usage_delete};;
