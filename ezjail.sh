@@ -74,7 +74,7 @@ do_cmd()
     [ "${ezjail_fromrc}" -a "${action}" = "start" -a "${ezjail_blocking}" ] && echo -n " ...skipping blocking jail ${ezjail}" && continue
 
     # Explicitely do only run blocking crypto jails when *crypto is requested
-    [ "${action%crypto}" != "${action}" -a "${ezjail_blocking}" ] && continue
+    [ "${action%crypto}" = "${action}" -o "${ezjail_blocking}" ] || continue
 
     # Try to attach (crypto) devices
     if [ "${ezjail_image}" ]; then
