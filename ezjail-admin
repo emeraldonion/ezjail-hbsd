@@ -695,7 +695,7 @@ install)
 
   ;;
 ######################## ezjail-admin SHORTCUT ########################
-*start|*stop|*startcrypto)
+*start|*stop|*startcrypto|*stopcry√pto)
   [ -x "${ezjail_prefix}/etc/rc.d/ezjail" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail" $@
   [ -x "${ezjail_prefix}/etc/rc.d/ezjail.sh" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail.sh" $@
 
