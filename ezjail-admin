@@ -866,7 +866,7 @@ restore)
     ?) exerr ${ezjail_usage_restore};;
   esac; done; shift $(( ${OPTIND} - 1 ))
 
-  [ $# -eq 0 ] || exerr ${ezjail_usage_restore}
+  [ $# -eq 0 ] && exerr ${ezjail_usage_restore}
 
   # Jail name mandatory
   fetchjailinfo $1
