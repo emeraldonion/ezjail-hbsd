@@ -373,7 +373,7 @@ create)
   # check for restore circumstances, normally this is invoked by the restore command
   [ "${ezjail_fromarchive}" -a "${ezjail_exists}" ] && exerr "Error: Cannot restore a jail that exists."
   [ "${ezjail_fromarchive}" -a "${ezjail_flavour}" ] && exerr "Error: Cannot apply flavours to a restored jail."
-  [ "${ezjail_fromarchive}" -a ! -r "${ezjail_fromarchive}" ] && exerr "Error: Cannot restore from non existing archive: ${ezjail_fromarchive}."
+  [ "${ezjail_fromarchive}" -a "${ezjail_fromarchive}" != "-" -a ! -r "${ezjail_fromarchive}" ] && exerr "Error: Cannot restore from non existing archive: ${ezjail_fromarchive}."
 
   #
   # All sanity checks that may lead to errors are hopefully passed here
