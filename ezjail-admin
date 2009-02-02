@@ -927,7 +927,7 @@ archive)
     [ -f "/etc/fstab.${ezjail_safename}" ] && ezjail_addfiles=/etc/fstab.${ezjail_safename}
 
     cd "${ezjail_rootdir}" || exerr "Error: Can't cd to ${ezjail_root}."
-    pax -wzXt -x ustar ${ezjail_archive_opt} \
+    pax -wzXt -x posix ${ezjail_archive_opt} \
       -s:"^[^\\.].*/${ezjail_safename}\$":prop.ezjail-${ezjail_archive_tag}: \
       -s:"^[^\\.].*/${ezjail_safename}.norun\$":prop.ezjail-${ezjail_archive_tag}.norun: \
       -s:"etc/fstab.${ezjail_safename}\$":fstab.ezjail: \
