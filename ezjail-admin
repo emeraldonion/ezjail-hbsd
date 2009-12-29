@@ -1355,7 +1355,7 @@ config)
   if [ "${ezjail_new_fib}" ]; then
     # if jail is still running, refuse to go any further
     [ "${ezjail_id}" ] && exerr "Error: Jail appears to be still running.\n  '${ezjail_admin} stop ${ezjail_name}' it first ."
-    [ "${ezjail_new_fib}" -ge "0" ] && exerr "Error: fib number has to be an integer."
+    [ "${ezjail_new_fib}" -ge "0" ] || exerr "Error: fib number has to be an integer."
 
     # write new config file, preserve comments
     (
