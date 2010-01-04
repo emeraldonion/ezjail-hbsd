@@ -95,7 +95,6 @@ do_cmd()
     # Get the JID of the jail
     [ -f "/var/run/jail_${ezjail_safename}.id" ] && ezjail_id=`cat /var/run/jail_${ezjail_safename}.id` || return
 
-    echo ${ezjail_id}
     # Attach ZFS-datasets to the jail
     for zfs in ${ezjail_zfs_datasets}; do
       /sbin/zfs jail ${ezjail_id} ${zfs} ||Êecho -n "Error: ${zfs} could not be configured"
