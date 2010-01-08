@@ -342,7 +342,7 @@ check_for_zfs () {
   # check if ZFS is enabled when managing basejail/newjail in ZFS
   . /etc/rc.subr
   load_rc_config_var zfs zfs_enable
-  checkyesno ezjail_use_zfs && checkyesno zfs_enable && echo "Warning: You should enable ZFS in /etc/rc.conf"
+  checkyesno ezjail_use_zfs && ! checkyesno zfs_enable && echo "Warning: You should enable ZFS in /etc/rc.conf"
 }
 
 check_for_zpool () {
