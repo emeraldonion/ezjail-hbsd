@@ -744,11 +744,11 @@ list)
 
     TIFS=${IFS}; IFS=,; unset _multiline
     for ezjail_ip in ${ezjail_ips}; do
-      if[ -z "${_multiline}" ]; then
+      if [ -z "${_multiline}" ]; then
         printf "%-3s %-5s %-15s %-28s %s\\n" "${ezjail_state}" "${ezjail_id:-N/A}" "${ezjail_ip}" "${ezjail_hostname}" "${ezjail_rootdir}"
-      else
-        echo "         ${ezjail_ip}"
         _multiline=yes
+      else
+        echo "          ${ezjail_ip}"
       fi
     done
     IFS=${TIFS}
