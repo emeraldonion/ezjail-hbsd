@@ -1435,3 +1435,4 @@ config)
   exerr "${ezjail_usage_ezjailadmin}"
   ;;
 esac
+exit 0
