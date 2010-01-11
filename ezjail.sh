@@ -50,8 +50,9 @@ do_cmd()
   fi
 
   for ezjail in ${ezjail_list}; do
-    # If jail is temporary disabled (dot in name), skip it
-    [ -f "${ezjail_prefix}/etc/ezjail/${ezjail}.norun" -o "${ezjail%.*}" != "${ezjail}" ] && echo -n " skipping ${ezjail}" && continue
+    # If jail is temporary disabled (dot in name), skip it for starts
+    case "${action}" in *stop) ezjail=${ezjail%%.*};; esac
+    [ "${ezjail%.*}" != "${ezjail}" ] && echo -n " skipping ${ezjail}" && continue
 
     # Check for jails config
     [ ! -r "${ezjail_prefix}/etc/ezjail/${ezjail}" ] && echo " Warning: Jail ${ezjail} not found." && continue
