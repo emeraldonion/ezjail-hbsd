@@ -384,7 +384,8 @@ check_for_zpool () {
   # check for the ZFS zpool to be online
   check_for_zfs
   _zpoolstatus=`/sbin/zpool list -H -o health ${ezjail_jailzfs%%/*} 2> /dev/null`
-  [ "${_zpoolstatus}" = "ONLINE" ] || exerr "Error: Your zpool does not exist or is not online."
+  [ "${_zpoolstatus}" = "DEGRADED" ] && echo "Warning: Your zpool is in a DEGRADED state."
+  [ "${_zpoolstatus}" = "ONLINE" -o "${_zpoolstatus}" = "DEGRADED" ] || exerr "Error: Your zpool does not exist or is not online."
 }
 
 #############################
