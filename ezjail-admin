@@ -1267,7 +1267,7 @@ config)
     fi
 
     # rename the filesystem, remounting is done by ZFS
-    [ "${ezjail_imagetype}" = "zfs" ] && zfs rename ${ezjail_jailzfs}/${ezjail_old_hostname} ${ezjail_jailzfs}/${ezjail_hostname}
+    [ "${ezjail_imagetype}" = "zfs" ] && /sbin/zfs rename ${ezjail_jailzfs}/${ezjail_old_hostname} ${ezjail_jailzfs}/${ezjail_hostname} && /sbin/zfs set mountpoint=${ezjail_rootdir} ${ezjail_jailzfs}/${ezjail_hostname} && rmdir ${ezjail_old_rootdir}
 
     # rename fstab
     rm -f "/etc/fstab.${ezjail_old_safename}"
