@@ -221,6 +221,7 @@ fetchjailinfo () {
     case ${ezjail_imagetype} in
       crypto|bde) ezjail_imagedevice=${ezjail_device_geom%.bde} ;;
       eli)        ezjail_imagedevice=${ezjail_device_geom%.eli} ;;
+      zfs)        ezjail_imagedevice='' ;;
       *)          ezjail_imagedevice=${ezjail_device_geom} ;;
     esac
 
@@ -1267,7 +1268,7 @@ config)
     # rename fstab
     rm -f "/etc/fstab.${ezjail_old_safename}"
     echo -n > "/etc/fstab.${ezjail_safename}"
-    [ "${ezjail_imagetype}" ] && \
+    [ "${ezjail_imagetype}" -a "${ezjail_imagetype}" != "zfs" ] && \
     echo ${ezjail_rootdir}.device ${ezjail_rootdir} ufs rw 0 0 >> "/etc/fstab.${ezjail_safename}"
     echo ${ezjail_jailbase} ${ezjail_rootdir}/basejail nullfs ro 0 0 >> "/etc/fstab.${ezjail_safename}"
 
