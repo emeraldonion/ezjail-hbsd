@@ -758,7 +758,7 @@ list)
     [ "${ezjail_safename}" != "${ezjail}" ] && ezjail_state="${ezjail_state}N"
 
     TIFS=${IFS}; IFS=,; unset _multiline
-    for ezjail_ip in ${ezjail_ips}; do
+    for ezjail_ip in ${ezjail_ips:="-"}; do
       if [ -z "${_multiline}" ]; then
         printf "%-3s %-4s %-15s %-30s %s\\n" "${ezjail_state}" "${ezjail_id:-N/A}" "${ezjail_ip}" "${ezjail_hostname}" "${ezjail_rootdir}"
         _multiline=yes
