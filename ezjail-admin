@@ -274,6 +274,13 @@ ezjail_splitworld() {
   # no /usr/ports? link to /basejail/usr/ports
   [ -e "${ezjail_jailtemplate}/usr/ports" ] || ln -s /basejail/usr/ports "${ezjail_jailtemplate}/usr/ports"
 
+  # A ports collection inside jails is hardly useful w/o an appropriate
+  # /etc/make.conf.
+  if [ -f "${ezjail_examples}/example/etc/make.conf" -a ! -f "${ezjail_jailtemplate}/etc/make.conf" ]; then
+    cp -p "${ezjail_examples}/example/etc/make.conf" "${ezjail_jailtemplate}/etc/"
+    echo "Note: a non-standard /etc/make.conf was copied to the template jail in order to get the ports collection running inside jails."
+  fi
+
   # The ugly perl hack[tm]. Note: we wont do such things for any given
   # port :(
   [ "${ezjail_uglyperlhack}" -a ! -L "${ezjail_jailbase}/usr/bin/perl" ] && ln -s /usr/local/bin/perl "${ezjail_jailbase}/usr/bin/perl"
