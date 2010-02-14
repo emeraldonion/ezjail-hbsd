@@ -77,6 +77,12 @@ do_cmd()
     eval ezjail_zfs_datasets=\"\$jail_${ezjail}_zfs_datasets\"
     eval ezjail_cpuset=\"\$jail_${ezjail}_cpuset\"
 
+    # Fix backward compatibility issue
+    eval ezjail_exec_start=\"\$jail_${ezjail}_exec_start\"
+    eval ezjail_exec=\"\$jail_${ezjail}_exec\"
+    eval jail_${ezjail}_exec_start=${ezjail_exec_start:-${ezjail_exec}}
+    eval unset jail_${ezjail}_exec
+
     # Do we still have a root to run in?
     [ ! -d "${ezjail_rootdir}" ] && echo " Warning: root directory ${ezjail_rootdir} of ${ezjail} does not exist." && continue
 
