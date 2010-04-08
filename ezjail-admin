@@ -325,7 +325,7 @@ ezjail_queryftpserver () {
   unset _ret
   echo -n "Querying your ftp-server... "
   TIFS=${IFS}; IFS=
-  for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots NO; do
+  for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
     if [ ${ezjail_path} = "NO" ]; then
       echo "Warning: I am having problems querying the ftp server you specified (${ezjail_ftphost})."
       _ret=1; break
