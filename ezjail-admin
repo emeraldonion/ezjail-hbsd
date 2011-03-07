@@ -728,7 +728,7 @@ EOF
     jail_grep=`echo $jail_pids | sed -E -e"s/ /)|(/g" -e"s/^/(/" -e"s/$/)/"`
 
     IFS=_
-    ezjail_listener=`sockstat -46l | grep -E -e "*:[[:digit:]]" -e " ${jail_grep} "`
+    ezjail_listener=`sockstat -46l | grep -E -e "\*:[[:digit:]]" | grep -E -e " ${jail_grep} "`
     [ $? -eq 0 ] && echo -e "Warning: Some services already seem to be listening on all IP, (including ${ezjail_ip})\n  This may cause some confusion, here they are:\n${ezjail_listener}"
     IFS=,
   done
