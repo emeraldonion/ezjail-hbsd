@@ -839,7 +839,7 @@ setup|update)
   # Clean variables, prevent polution
   unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination
 
-  shift; while getopts :biupPs: arg; do case ${arg} in
+  shift; while getopts :biuUpPs: arg; do case ${arg} in
     b) ezjail_installaction="buildworld installworld";;
     i) ezjail_installaction="installworld";;
     u) ezjail_installaction="freebsd-update";;
@@ -871,7 +871,7 @@ setup|update)
     [ -z "$TERM" -o "$TERM" = "dumb" ] && ezjail_urgency="cron" || ezjail_urgency="fetch"
     [ "${ezjail_use_zfs}" = "YES" ] && zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
     freebsd-update -b ${ezjail_jailbase} ${ezjail_urgency} install
-  elif [ "${ezjail_installaction}" == "freebsd-upgrade" ]; then
+  elif [ "${ezjail_installaction}" = "freebsd-upgrade" ]; then
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot update a base jail until it is created.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
 
     [ -z "${ezjail_sourcetree}" ] && exerr "Error: Can not (yet automatically) infer the basejail's osversion.\n  Please run ${ezjail_admin} update -U -s X.X-RELEASE, with X.X-RELEASE being to osversion currently installed in the basejail in need of an upgrade."
