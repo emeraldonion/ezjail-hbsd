@@ -807,7 +807,7 @@ list)
   [ $# -eq 1 ] || exerr ${ezjail_usage_list}
   unset ezjail_list
 
-  [ -d "${ezjail_prefix}/etc/ezjail/" ] && cd "${ezjail_prefix}/etc/ezjail/" && ezjail_list=`ls | xargs rcorder`
+  cd ${ezjail_jailcfgs} && ezjail_list=`rcorder *`
 
   printf "%-3s %-4s %-15s %-30s %s\\n" STA JID IP Hostname "Root Directory"
   echo   "--- ---- --------------- ------------------------------ ------------------------"
