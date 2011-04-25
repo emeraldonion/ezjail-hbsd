@@ -130,20 +130,23 @@ detach_images () {
 # Find and execute our rc script
 start_stop_jail_by_script () {
   ezjail_action=$1
-  [ "${ezjail_action}" = "onestart" ] && ezjail_success_check="-n" || ezjail_success_check="-z"
+  case ${ezjail_action} in *start*) ezjail_success_check="-n";; *) ezjail_success_check="-z";; esac
 
   # Try to locate and run ezjails rc.d script
   if [ -x "${ezjail_prefix}/etc/rc.d/ezjail" ]; then
-    (exec "${ezjail_prefix}/etc/rc.d/ezjail" ${ezjail_action} ${ezjail_name});
+    "${ezjail_prefix}/etc/rc.d/ezjail" $@
   elif [ -x "${ezjail_prefix}/etc/rc.d/ezjail.sh" ]; then
-    (exec "${ezjail_prefix}/etc/rc.d/ezjail.sh" ${ezjail_action} ${ezjail_name});
+    "${ezjail_prefix}/etc/rc.d/ezjail.sh" $@
   else
     exerr "Error: Could not find ezjail's rc.d script in ${ezjail_prefix}/etc/rc.d/.\n  You need to ${ezjail_action} ${ezjail_name} by hand."
   fi
 
   # Check for success of our operation
-  fetchjailinfo ${ezjail_name}
-  [ ${ezjail_success_check} "${ezjail_id}" ] || exerr "Error: Could not ${ezjail_action} ${ezjail_name}.\n  You need to ${ezjail_action} it by hand."
+  shift
+  for ezjail; do
+    fetchjailinfo ${ezjail}
+    [ ${ezjail_success_check} "${ezjail_id}" ] || exerr "Error: Could not ${ezjail_action} $@.\n  You need to ${ezjail_action} it by hand."
+  done
 }
 
 # write everything we know about an ezjail to config
@@ -1021,10 +1024,7 @@ install)
   ;;
 ######################## ezjail-admin SHORTCUT ########################
 *start|*stop|*startcrypto|*stopcrypto)
-  [ -x "${ezjail_prefix}/etc/rc.d/ezjail" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail" $@
-  [ -x "${ezjail_prefix}/etc/rc.d/ezjail.sh" ] && exec "${ezjail_prefix}/etc/rc.d/ezjail.sh" $@
-
-  exerr "Error: Could not find ezjail's rc.d script in ${ezjail_prefix}/etc/rc.d/.\n  You need to type it the long way."
+  start_stop_jail_by_script $@
   ;;
 ######################## ezjail-admin CONSOLE ########################
 console)
@@ -1097,9 +1097,9 @@ archive)
   [ $# -gt 0 -a "${ezjail_archivealljails}" ] && exerr "Error: Must not specify an ezjail to backup with -A.\n  Please use either '${ezjail_admin} archive -A' or '${ezjail_admin} archive $*'."
 
   # Fetch list of all ezjails
-  [ "${ezjail_archivealljails}" -a -d "${ezjail_prefix}/etc/ezjail/" ] && cd "${ezjail_prefix}/etc/ezjail/" && set - `ls | xargs rcorder`
+  [ "${ezjail_archivealljails}" ] && cd ${ezjail_jailcfgs} && set - `rcorder *`
 
-  for ezjail in $@; do
+  for ezjail; do
     unset ezjail_imagesize
 
     # Jail name mandatory
