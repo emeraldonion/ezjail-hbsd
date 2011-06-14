@@ -189,7 +189,7 @@ writejailinfo () {
 fetchjailinfo () {
   ezjail_name=$1
 
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_config ezjail_running ezjail_hostname ezjail_rootdir ezjail_image ezjail_imagetype ezjail_imagedevice ezjail_devicelink ezjail_ips ezjail_id ezjail_attached ezjail_device ezjail_device_geom ezjail_exec_start ezjail_exec_stop ezjail_mount_enable ezjail_devfs_enable ezjail_devfs_ruleset ezjail_procfs_enable ezjail_fdescfs_enable
 
   ezjail_safename=`echo -n "${ezjail_name}" | tr -c '[:alnum:]' _`
@@ -426,7 +426,7 @@ check_for_zfs_exist () {
 case "$1" in
 ######################## ezjail-admin CREATE ########################
 create)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
   shift; while getopts :f:r:s:xbic:C:a:A: arg; do case ${arg} in
     x) ezjail_exists="YES";;
@@ -741,7 +741,7 @@ EOF
   ;;
 ######################## ezjail-admin DELETE ########################
 delete)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_wipeme ezjail_forcestop
 
   shift; while getopts :wf arg; do case ${arg} in
@@ -839,7 +839,7 @@ list)
   ;;
 ######################## ezjail-admin UPDATE ########################
 setup|update)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination
 
   shift; while getopts :biuUpPs: arg; do case ${arg} in
@@ -921,7 +921,7 @@ setup|update)
   ;;
 ######################## ezjail-admin INSTALL ########################
 install)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_release ezjail_installmanpages ezjail_installports ezjail_installsources ezjail_dir ezjail_reldir ezjail_ftpserverqueried
 
   shift; while getopts :mMpPsSh:r: arg; do case ${arg} in
@@ -1028,7 +1028,7 @@ install)
   ;;
 ######################## ezjail-admin CONSOLE ########################
 console)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_execute ezjail_forcestart
 
   shift; while getopts :e:f arg; do case ${arg} in
@@ -1070,7 +1070,7 @@ console)
   ;;
 ######################## ezjail-admin ARCHIVE ########################
 archive)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_archive ezjail_archive_tag ezjail_force ezjail_archivealljails ezjail_addfiles
 
   shift; while getopts :Afa:d: arg; do case ${arg} in
@@ -1178,7 +1178,7 @@ archive)
   ;;
 ####################### ezjail-admin RESTORE ########################
 restore)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_safename ezjail_forcerestore
 
   shift; while getopts :d:f arg; do case ${arg} in
@@ -1255,7 +1255,7 @@ restore)
   ;;
 ######################## ezjail-admin CONFIG ########################
 config)
-  # Clean variables, prevent polution
+  # Clean variables, prevent pollution
   unset ezjail_setrunnable ezjail_imageaction ezjail_new_name ezjail_new_zfs_datasets ezjail_new_cpuset ezjail_new_fib ezjail_old_config
 
   shift; while getopts :r:i:n:z:c:f: arg; do case ${arg} in
