@@ -1050,7 +1050,7 @@ console)
   if [ -z "${ezjail_id}" ]; then
 
     # If force start is requested, try that
-    [ "$ezjail_forcestart}" ] || exerr "Error: Jail ${ezjail_name} appears not to be running\n  Start it first, or use '${ezjail_admin} console -f ${ezjail_name}' to force start."
+    [ "${ezjail_forcestart}" ] || exerr "Error: Jail ${ezjail_name} appears not to be running\n  Start it first, or use '${ezjail_admin} console -f ${ezjail_name}' to force start."
 
     # This one will also exerr on failure
     start_stop_jail_by_script onestart
