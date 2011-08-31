@@ -11,7 +11,7 @@ install:
 	cp -p ezjail.conf.sample ${PREFIX}/etc/
 	cp -R -p examples/example ${PREFIX}/share/examples/ezjail/
 	cp -R -p examples/nullmailer-example ${PREFIX}/share/examples/ezjail/
-	cp -R -p share/zsh/site-functions ${PREFIX}/share/zsh-functions/
+	cp -R -p share/zsh/site-functions ${PREFIX}/share/zsh/site-functions/
 	sed s:EZJAIL_PREFIX:${PREFIX}: ezjail.sh > ${PREFIX}/etc/rc.d/ezjail
 	sed s:EZJAIL_PREFIX:${PREFIX}: ezjail-admin > ${PREFIX}/bin/ezjail-admin
 	sed s:EZJAIL_PREFIX:${PREFIX}: man8/ezjail-admin.8 > ${PREFIX}/man/man8/ezjail-admin.8
