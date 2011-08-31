@@ -57,7 +57,7 @@ are provided. A sample configuration is installed as
 .Pa EZJAIL_PREFIX/etc/ezjail.conf.sample .
 .Pp
 A script is also installed as
-.Pa ezjail.sh
+.Pa ezjail
 in the rc.d system to allow jails under ezjails control to be started at boot
 time, given ezjail is enabled by setting the
 .Xr rc.conf 5
@@ -354,7 +354,7 @@ in the host, using the same sources.
 Like all
 .Xr rc 8
 scripts, the ezjail script
-.Pa EZJAIL_PREFIX/etc/rc.d/ezjail.sh
+.Pa EZJAIL_PREFIX/etc/rc.d/ezjail
 accepts parameters
 .Cm start , restart No and Cm stop, No running, restarting and stopping
 all (non-blocking) jails under ezjail's control by default. When passed an
@@ -381,7 +381,7 @@ Note that jails configured to be in the
 .Em norun
 state (using
 .Nm Cm config Fl r Ar norun Ar jailname )
-are never started by the ezjail.sh script.
+are never started by the ezjail rc script.
 .Pp
 As a convenient shortcut, the
 .Nm
@@ -390,7 +390,7 @@ if they look like valid parameters.
 .Pp
 Even if ezjail is not enabled in the
 .Xr rc.conf 5 ,
-ezjail.sh can be used to start and stop jails by prepending
+rc.d/ezjail can be used to start and stop jails by prepending
 .Cm force No or Cm one No to the Cm start, restart No or Cm stop No parameter.
 Refer to
 .Xr rc 8
@@ -632,7 +632,7 @@ variable to create the filesystem in.
 .Sh FILES
 .Pa EZJAIL_PREFIX/bin/ezjail-admin
 .br
-.Pa EZJAIL_PREFIX/etc/rc.d/ezjail.sh
+.Pa EZJAIL_PREFIX/etc/rc.d/ezjail
 .br
 .Pa EZJAIL_PREFIX/etc/ezjail.conf
 .br
