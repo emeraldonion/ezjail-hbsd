@@ -668,18 +668,17 @@ create)
       # if the packages are links and not files we have to copy them now
       find "${ezjail_rootdir}/pkg/" -type l -exec cp -r -f {} {}.ezjail \; -exec mv {}.ezjail {} \;
 
-      # If a config is found, make it auto run on jails startup
+      # If an old style flavour config is found, make it auto run on jails startup
       if [ -f "${ezjail_rootdir}/ezjail.flavour" ]; then
         chmod 0755 "${ezjail_rootdir}/ezjail.flavour"
         mv "${ezjail_rootdir}/ezjail.flavour" "${ezjail_rootdir}/ezjail.flavour".`printf %04d $(( installed_flavours+=1 ))`
         echo "Note: Shell scripts for flavour ${ezjail_flavour} installed, flavourizing on jails first startup."
-      fi
 
       cat > "${ezjail_rootdir}/etc/rc.d/ezjail-config" <<"EOF"
 #!/bin/sh
 #
 # BEFORE: DAEMON
-# PROVIDES: ezjail-config
+# PROVIDE: ezjail-config
 #
 case "$1" in
   *start)
@@ -693,7 +692,8 @@ case "$1" in
   ;;
 esac
 EOF
-    chmod 0755 "${ezjail_rootdir}/etc/rc.d/ezjail-config"
+      chmod 0755 "${ezjail_rootdir}/etc/rc.d/ezjail-config"
+      fi
     done
   fi
 
