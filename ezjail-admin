@@ -43,7 +43,7 @@ ezjail_basesystem="base"
 case `uname -p` in amd64) ezjail_dirlist="${ezjail_dirlist} usr/lib32"; ezjail_basesystem="${ezjail_basesystem} lib32";; esac
 
 # Synopsis messages
-ezjail_usage_ezjailadmin="${ezjail_admin} v3.1.1b\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|update] {params}"
+ezjail_usage_ezjailadmin="${ezjail_admin} v3.2b\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|update] {params}"
 ezjail_usage_install="Usage: ${ezjail_admin} install [-mMpPsS] [-h host] [-r release]"
 ezjail_usage_create="Usage: ${ezjail_admin} create [-xbi] [-f flavour] [-r jailroot] [-s size] [-c bde|eli|zfs] [-C args] [-a archive] jailname jailip"
 ezjail_usage_delete="Usage: ${ezjail_admin} delete [-wf] jailname"
@@ -939,6 +939,7 @@ install)
   [ $# -eq 0 ] || exerr ${ezjail_usage_install}
 
   ezjail_installarch=`uname -p`
+  ezjail_installplatform=`uname -m`
   : ${ezjail_ftphost="ftp.freebsd.org"}
   ezjail_ftphost=${ezjail_ftphost#ftp://}
   ezjail_dir=${ezjail_ftphost#file://}
@@ -961,6 +962,11 @@ install)
       [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
     fi
   fi
+
+  # From 9.0 releases come with a new layout
+  # It is now a single archive ${pkg}.txz instead of a list of archive parts under ${pkg}/*
+  # We assume for now that jail's platform is supposed to be that of the host. That may change later.
+  ezjail_release_major=${ezjail_release%%.}
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
@@ -995,23 +1001,37 @@ install)
           [ "${ezjail_ftpserverqueried}" ] || ezjail_queryftpserver
           exit 1
         fi
-        ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/*" && break
+        if [${ezjail_release_major} -ge 9 ]; then
+          ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" && break
+        else
+          ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/*" && break
+        fi
       done
 
-      # These actions are really ugly: sources want $1 to contain the set
-      # of sources to install, base asks the user if he is sure, hence the
-      # yes and the set -- all
-      [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
-      set -- all
-      [ -f install.sh ] && yes | . install.sh
-      [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+      if [ ${ezjail_release_major} -ge 9 ]; then
+        tar --unlink -xpJf -C ${DESTDIR} ${pkg}.txz
+      else
+        # These actions are really ugly: sources want $1 to contain the set
+        # of sources to install, base asks the user if he is sure, hence the
+        # yes and the set -- all
+        [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
+        set -- all
+        [ -f install.sh ] && yes | . install.sh
+        [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+      fi
 
       rm -rf "${ezjail_jailtemp}"
     else
-      cd "${ezjail_reldir}/${ezjail_dir}/${pkg}" || exerr "Error: Could not cd to ${ezjail_dir}."
-      set -- all
-      [ -f install.sh ] && yes | . install.sh
-      [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+      if [ ${ezjail_release_major} -ge 9 ]; then
+        [ -r "${ezjail_reldir}/${ezjail_dir}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz"
+        tar --unlink -xpJf -C ${DESTDIR} ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz
+      else
+        cd "${ezjail_reldir}/${ezjail_dir}/${pkg}" || exerr "Error: Could not cd to ${ezjail_dir}."
+        [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
+        set -- all
+        [ -f install.sh ] && yes | . install.sh
+        [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+      fi
     fi
   done
 
