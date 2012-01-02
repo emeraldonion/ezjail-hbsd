@@ -965,9 +965,13 @@ install)
 
   # From 9.0 releases come with a new layout
   # It is now a single archive ${pkg}.txz instead of a list of archive parts under ${pkg}/*
+  # man pages come with the base
   # We assume for now that jail's platform is supposed to be that of the host. That may change later.
   ezjail_release_major=${ezjail_release%%.*}
-  [ ${ezjail_release_major} -ge 9 -a -n "${ezjail_installmanpages}" ] && ezjail_installmanpages=doc
+  if [ ${ezjail_release_major} -ge 9 -a -n "${ezjail_installmanpages}" ]; then
+    echo "Note: From FreeBSD 9.0 man pages are part of the base package"
+    unset ezjail_installmanpages
+  fi
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
