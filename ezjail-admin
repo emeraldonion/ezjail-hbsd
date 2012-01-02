@@ -966,7 +966,8 @@ install)
   # From 9.0 releases come with a new layout
   # It is now a single archive ${pkg}.txz instead of a list of archive parts under ${pkg}/*
   # We assume for now that jail's platform is supposed to be that of the host. That may change later.
-  ezjail_release_major=${ezjail_release%%.}
+  ezjail_release_major=${ezjail_release%%.*}
+  [ ${ezjail_release_major} -ge 9 -a -n "${ezjail_installmanpages}" ] && ezjail_installmanpages=doc
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
@@ -1001,7 +1002,7 @@ install)
           [ "${ezjail_ftpserverqueried}" ] || ezjail_queryftpserver
           exit 1
         fi
-        if [${ezjail_release_major} -ge 9 ]; then
+        if [ ${ezjail_release_major} -ge 9 ]; then
           ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" && break
         else
           ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/*" && break
