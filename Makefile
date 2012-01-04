@@ -7,7 +7,7 @@ PREFIX?=/usr/local
 all:
 
 install:
-	mkdir -p ${PREFIX}/etc/ezjail/ ${PREFIX}/man/man1/ ${PREFIX}/man/man5/ ${PREFIX}/man/man8 ${PREFIX}/etc/rc.d/ ${PREFIX}/bin/ ${PREFIX}/share/examples/ezjail ${PREFIX}/share/zsh/site-functions
+	mkdir -p ${PREFIX}/etc/ezjail/ ${PREFIX}/man/man1/ ${PREFIX}/man/man5/ ${PREFIX}/man/man7 ${PREFIX}/man/man8 ${PREFIX}/etc/rc.d/ ${PREFIX}/bin/ ${PREFIX}/share/examples/ezjail ${PREFIX}/share/zsh/site-functions
 	cp -p ezjail.conf.sample ${PREFIX}/etc/
 	cp -R -p examples/example ${PREFIX}/share/examples/ezjail/
 	cp -R -p examples/nullmailer-example ${PREFIX}/share/examples/ezjail/
