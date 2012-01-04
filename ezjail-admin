@@ -957,7 +957,7 @@ install)
     case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
     if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
       echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
-      [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
+      [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
       ezjail_queryftpserver || echo "... I'll continue anyway."
       echo -n "Release [ ${ezjail_release} ]: "
       read ezjail_releasetmp
