@@ -953,13 +953,16 @@ install)
   # ftp servers normally wont provide non-RELEASE-builds
   if [ -z "${ezjail_release}" -a "${ezjail_dir}" = "${ezjail_ftphost}" ]; then
     ezjail_release=`uname -r`
+    ezjail_release_major=${ezjail_release%%.*}
     case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
     if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
       echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
+      [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
       ezjail_queryftpserver || echo "... I'll continue anyway."
       echo -n "Release [ ${ezjail_release} ]: "
       read ezjail_releasetmp
       [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
+      ezjail_installarch=`uname -p`
     fi
   fi
 
@@ -972,8 +975,8 @@ install)
     echo "Note: From FreeBSD 9.0 man pages are part of the base package"
     unset ezjail_installmanpages
   fi
-  [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
-  [ ${ezjail_release_major} -ge 9 ] && ezjail_pkgsuffix=".txz" || ezjail_pkgsuffix="/*"
+  [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
+  [ ${ezjail_release_major} -ge 9 ] && ezjail_pkgsuffix=".txz" || ezjail_pkgsuffix="/*"
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
