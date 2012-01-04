@@ -972,6 +972,8 @@ install)
     echo "Note: From FreeBSD 9.0 man pages are part of the base package"
     unset ezjail_installmanpages
   fi
+  [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
+  [ ${ezjail_release_major} -ge 9 ] && ezjail_pkgsuffix=".txz" || ezjail_pkgsuffix="/*"
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
@@ -1006,11 +1008,7 @@ install)
           [ "${ezjail_ftpserverqueried}" ] || ezjail_queryftpserver
           exit 1
         fi
-        if [ ${ezjail_release_major} -ge 9 ]; then
-          ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" && break
-        else
-          ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/*" && break
-        fi
+        ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}${ezjail_pkgsuffix}" && break
       done
 
       if [ ${ezjail_release_major} -ge 9 ]; then
