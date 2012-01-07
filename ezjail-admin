@@ -680,17 +680,18 @@ create)
 # BEFORE: DAEMON
 # PROVIDE: ezjail-config
 #
-case "$1" in
-  *start)
-    rm -f "/etc/rc.d/ezjail-config"
-    for ezjail_flavour in /ezjail.flavour.*; do
-      [ -x "${ezjail_flavour}" ] && "${ezjail_flavour}"
-      rm -f "${ezjail_flavour}"
-    done
-  ;;
-  *)
-  ;;
-esac
+name=ezjail-config
+start_cmd=flavour_setup
+
+flavour_setup() {
+  # N.B.: Do NOT rm $0, it points to /etc/rc
+  rm -f "/etc/rc.d/ezjail-config"
+  for ezjail_flavour in /ezjail.flavour.*; do
+    [ -x "${ezjail_flavour}" ] && "${ezjail_flavour}"
+    rm -f "${ezjail_flavour}"
+  done
+}
+run_rc_command "$1"
 EOF
       chmod 0755 "${ezjail_rootdir}/etc/rc.d/ezjail-config"
       fi
