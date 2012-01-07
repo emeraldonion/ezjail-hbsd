@@ -5,24 +5,17 @@
 #
 # ezjail flavour example
 
-#
-case "$1" in
-  *start)
+. /etc/rc.subr
 
-# Remove traces of ourself
-##########################
-  rm -f "/etc/rc.d/ezjail.flavour.example"
-
-# Run the main setup routines
-#############################
-  flavour_setup()
-
-  ;;
-  *)
-  ;;
-esac
+name=ezjail.flavour.example
+start_cmd=flavour_setup
 
 flavour_setup() {
+
+# Remove traces of ourself
+# N.B.: Do NOT rm $0, it points to /etc/rc
+##########################
+  rm -f "/etc/rc.d/ezjail.flavour.example"
 
 # Groups
 #########
@@ -78,3 +71,5 @@ rm -rf /pkg
 # cd /usr/ports/sysutils/screen && make install
 
 }
+
+run_rc_command "$1"
