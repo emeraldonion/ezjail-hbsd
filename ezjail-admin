@@ -671,8 +671,8 @@ create)
       # If an old style flavour config is found, make it auto run on jails startup
       if [ -f "${ezjail_rootdir}/ezjail.flavour" ]; then
         chmod 0755 "${ezjail_rootdir}/ezjail.flavour"
-        mv "${ezjail_rootdir}/ezjail.flavour" "${ezjail_rootdir}/ezjail.flavour".`printf %04d $(( installed_flavours+=1 ))`
-        echo "Note: Shell scripts for flavour ${ezjail_flavour} installed, flavourizing on jails first startup."
+        mv "${ezjail_rootdir}/ezjail.flavour" "${ezjail_rootdir}/ezjail.flavour".`printf %04d ${installed_flavours}`
+        [ $(( installed_flavours+=1 )) == 1 ] && echo "Note: Shell scripts for flavour ${ezjail_flavour} installed, flavourizing on jails first startup."
 
       cat > "${ezjail_rootdir}/etc/rc.d/ezjail-config" <<"EOF"
 #!/bin/sh
