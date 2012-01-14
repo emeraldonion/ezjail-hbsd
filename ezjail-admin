@@ -708,7 +708,7 @@ EOF
   TIFS=${IFS}; IFS=,
   for ezjail_ip in ${ezjail_ips}; do
     # check, whether IP is configured on a local interface, warn if it isnt
-    ping -c 1 -m 1 -t 1 -q ${ezjail_ip} > /dev/null
+    nc -n -s ${ezjail_ip} -u -w 0 127.0.0.1 1 2> /dev/null
     [ $? -eq 0 ] || echo "Warning: IP ${ezjail_ip} not configured on a local interface."
 
     # check, whether some host system services do listen on the Jails IP
