@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ezjail_dirlist="bin boot lib libexec rescue sbin usr/bin usr/include usr/lib usr/libdata usr/libexec usr/sbin usr/src usr/share usr/lib32"
+ezjail_dirlist="bin boot lib libexec rescue sbin usr/bin usr/include usr/lib usr/libdata usr/libexec usr/sbin usr/src usr/share usr/lib32 usr/ports"
 
 ezjail_name=`uname -n`
 ezjail_safename=`echo -n "${ezjail_name}" | tr -c '[:alnum:]' _`
