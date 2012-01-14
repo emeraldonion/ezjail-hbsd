@@ -770,7 +770,7 @@ delete)
     [ "${ezjail_forcestop}" ] || exerr "Error: Jail appears to be still running.\n  '${ezjail_admin} stop ${ezjail_name}' it first or use '${ezjail_admin} delete -f ${ezjail_name}' to force stop."
 
     # This one will also exerr on failure
-    start_stop_jail_by_script onestop
+    start_stop_jail_by_script onestop ${ezjail_name}
   fi
 
   if [ "${ezjail_attached}" ]; then
