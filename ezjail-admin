@@ -707,8 +707,9 @@ EOF
 
   TIFS=${IFS}; IFS=,
   for ezjail_ip in ${ezjail_ips}; do
+    case ${ezjail_ip} in *.*.*.*) _ping=ping;; *) _ping=ping6;; esac
     # check, whether IP is configured on a local interface, warn if it isnt
-    nc -n -s ${ezjail_ip} -u -w 0 127.0.0.1 1 2> /dev/null
+    ${_ping} -S ${ezjail_ip} -q -c 1 localhost >/dev/null 2>/dev/null
     [ $? -eq 0 ] || echo "Warning: IP ${ezjail_ip} not configured on a local interface."
 
     # check, whether some host system services do listen on the Jails IP
