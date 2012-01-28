@@ -260,8 +260,6 @@ ezjail_splitworld() {
   # Fill basejail from installed world
   cd "${ezjail_jailfull}" || exerr "Error: Cant access temporary Jail directory."
 
-  # This mkdir is important, since cpio will create intermediate
-  # directories with permission 0700 which is bad
   if [ "${ezjail_use_zfs}" = "YES" ]; then
     echo "ZFS: create the basejail"
     echo "/sbin/zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}"
@@ -269,6 +267,13 @@ ezjail_splitworld() {
     /sbin/zfs create -p ${ezjail_jailzfs}/basejail
     /sbin/zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
   fi
+
+  # Remove schg flags from old basejail binaries. The flags
+  # will be re-added in the cpio for the new basejail
+  [ -d "${ezjail_jailbase}" ] && chflags -R noschg "${ezjail_jailbase}"
+
+  # This mkdir is important, since cpio will create intermediate
+  # directories with permission 0700 which is bad
   mkdir -p "${ezjail_jailbase}/usr"
   for dir in ${ezjail_dirlist}; do
     find ${dir} | cpio -d -p -v "${ezjail_jailbase}" || exerr "Error: Installation of ${dir} failed."
