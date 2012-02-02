@@ -34,13 +34,23 @@ repl="${repl} -s:^./tmp/ezjail_fakeroot/usr$::p -s:^./tmp/ezjail_fakeroot/:ezjai
 # Finally re-locate all files under ezjail/ so that the restore command find them
 repl="${repl} -s:^\.:ezjail:p"
 
-echo $repl
-
 cd /
 pax -wt -x cpio ${ezjail_archive_opt} ${repl} .
 ezjail_paxresult=$?
 
 rm -rf /tmp/ezjail_fakeroot/
 
-#unset LANG LC_CTYPE
-#find -dE / ! -regex "/(dev|proc|${ezjail_dirlist})/.*" -a ! -regex "/(${ezjail_dirlist})" -a ! -path /tmp/ezjail_fakeroot/usr -a ! -name "${ezjail_archive}" \
+# Debug: unset LANG LC_CTYPE
+# Debug: find -dE / ! -regex "/(dev|proc|${ezjail_dirlist})/.*" -a ! -regex "/(${ezjail_dirlist})" -a ! -path /tmp/ezjail_fakeroot/usr -a ! -name "${ezjail_archive}" \
+
+if [ ${ezjail_paxresult} -eq 0 ]; then
+  echo Your system has been archived to ${ezjail_archive}
+  echo On the destination ezjail installation use the following command to
+  echo import it as an ezjail:
+  echo   ezjail-admin create -a ./${ezjail_archive} HOSTNAME IP
+  echo Of course you can use many other switches to ezjail-admin create on
+  echo the target system as well.
+else
+  echo Your system could not be archived, try the following command to find
+  echo out why:
+fi
