@@ -20,7 +20,7 @@ ezjail_prefix=EZJAIL_PREFIX
 . /etc/rc.subr
 
 name=ezjail
-rcvar=`set_rcvar`
+rcvar=${name}_enable
 extra_commands="startcrypto stopcrypto"
 load_rc_config ${name}
 
