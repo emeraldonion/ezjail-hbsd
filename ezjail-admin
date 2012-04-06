@@ -727,8 +727,8 @@ EOF
     # by prepending -j to each jid
     IFS=${TIFS}
     jail_ids=`( echo none=
-      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip4\.addr=([0-9.,]+)'.*/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
-      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip6\.addr=([0-9a-f:,]+)'.*/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
+      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip4\.addr=([0-9.,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
+      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip6\.addr=([0-9a-f:,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
     ) | cut -d= -f1 | sed s/^/-j/`
 
     # Fetch all corresponding process ids for all matching jail
