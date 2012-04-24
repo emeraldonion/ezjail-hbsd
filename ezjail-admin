@@ -1037,7 +1037,7 @@ install)
     else
       if [ ${ezjail_release_major} -ge 9 ]; then
         [ -r "${ezjail_reldir}/${ezjail_dir}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz"
-        xzdec $ ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+        xzdec ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
       else
         cd "${ezjail_reldir}/${ezjail_dir}/${pkg}" || exerr "Error: Could not cd to ${ezjail_dir}."
         [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
