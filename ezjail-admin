@@ -847,7 +847,7 @@ list)
 ######################## ezjail-admin UPDATE ########################
 setup|update)
   # Clean variables, prevent pollution
-  unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination
+  unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination ezjail_sourcetree
 
   shift; while getopts :biuUpPs: arg; do case ${arg} in
     b) ezjail_installaction="buildworld installworld";;
