@@ -726,18 +726,23 @@ EOF
     # Add none meaning the host system. Prepare this list as argument for pgrep
     # by prepending -j to each jid
     IFS=${TIFS}
-    jail_ids=`( echo none=
-      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip4\.addr=([0-9.,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
-      jls -n | sed -E -n s/'.*jid=([0-9]+).*ip6\.addr=([0-9a-f:,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
-    ) | cut -d= -f1 | sed s/^/-j/`
+    _freebsd_version=`uname -r`
+    if [ ${_freebsd_version%%.*} -gt 7 ]; then
+      jail_ids=`( echo none=
+        jls -n | sed -E -n s/'.*jid=([0-9]+).*ip4\.addr=([0-9.,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
+        jls -n | sed -E -n s/'.*jid=([0-9]+).*ip6\.addr=([0-9a-f:,]+).*'/'\1=\2'/p | grep -Ee "${ezjail_ip}(,|$)"
+      ) | cut -d= -f1 | sed s/^/-j/`
 
-    # Fetch all corresponding process ids for all matching jail
-    jail_pids=`pgrep $jail_ids`
+      # Fetch all corresponding process ids for all matching jail
+      jail_pids=`pgrep $jail_ids`
 
-    # expand pids to form a greppable expression
-    jail_grep=`echo $jail_pids | sed -E -e"s/ / )|( /g" -e"s/^/( /" -e"s/$/ )/"`
+      # expand pids to form a greppable expression
+      jail_grep=`echo $jail_pids | sed -E -e"s/ / )|( /g" -e"s/^/( /" -e"s/$/ )/"`
 
-    IFS=_
+      IFS=_
+    else
+      jail_grep=.
+    fi
     ezjail_listener=`sockstat -46l | grep -E -e "\*:[[:digit:]]" | grep -E -e "${jail_grep}"`
     [ $? -eq 0 ] && echo -e "Warning: Some services already seem to be listening on all IP, (including ${ezjail_ip})\n  This may cause some confusion, here they are:\n${ezjail_listener}"
     IFS=,
