@@ -261,10 +261,8 @@ ezjail_splitworld() {
   cd "${ezjail_jailfull}" || exerr "Error: Cant access temporary Jail directory."
 
   if [ "${ezjail_use_zfs}" = "YES" ]; then
-    echo "ZFS: create the basejail"
-    echo "/sbin/zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}"
-    /sbin/zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}
-    /sbin/zfs create -p ${ezjail_jailzfs}/basejail
+    ensure_jailzfs
+    /sbin/zfs create ${ezjail_jailzfs}/basejail
     /sbin/zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
   fi
 
@@ -283,7 +281,6 @@ ezjail_splitworld() {
 
   # Try to remove the old template jail
   if [ "${ezjail_use_zfs}" = "YES" ]; then
-    echo "ZFS: cleanup old template jail"
     [ -d "${ezjail_jailtemplate}" ] && zfs destroy -R ${ezjail_jailzfs}/newjail && rm -rf "${ezjail_jailtemplate}"
     cd ${ezjail_jaildir}
     zfs rename ${ezjail_jailzfs}/fulljail ${ezjail_jailzfs}/newjail
@@ -419,6 +416,28 @@ check_for_zfs_exist () {
   _zfs_status=`/sbin/zfs list -H -o name ${ezjail_jailzfs}/${ezjail_hostname} 2> /dev/null`
   [ "${_zfs_status}" = "${ezjail_jailzfs}/${ezjail_hostname}" ] && _exit=0
   return ${_exit}
+}
+
+ensure_jailzfs() {
+  # make sure we do have a zfs to work with, create it if necessary or exit with an error
+  # if a plain non-empty directory in the place
+
+  # ensure that the system has a working zfs
+  check_for_zpool
+
+  # if a zfs already exists, we assume it to be the one we need
+  _zfs_status=`/sbin/zfs list -H -o name ${ezjail_jailzfs} 2> /dev/null`
+  [ "${_zfs_status}" = "${ezjail_jailzfs}" ] && return
+
+  # if a directoy already exists in that place, make sure it is empty, else bump user
+  [ -d "${ezjail_jaildir}" -a -n "`ls -A ${ezjail_jaildir}`" ] && exerr "Error: Can not create zfs at ${ezjail_jaildir}.\n  There is a non-empty directory in the way."
+
+  # create all parent file systems if necessary
+  case "${ezjail_jailzfs}" in */*/*) /sbin/zfs create -p ${ezjail_jailzfs%/*};; esac
+
+  # create the ezjail root zfs
+  # Note, we can not use -p here, because the -o options are ignored
+  /sbin/zfs create -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}
 }
 
 #############################
@@ -598,12 +617,10 @@ create)
       ;;
     zfs)
       if [ -z "${ezjail_exists}" ]; then
-        echo "ZFS: create the jail filesystem"
-        if [ ${ezjail_imagesize} ]; then
-          ezjail_zfs_jail_properies="-o quota=${ezjail_imagesize} -o compression=lzjb"
-        fi
+        [ -n "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="-o quota=${ezjail_imagesize} -o compression=lzjb"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
-        /sbin/zfs create -p -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properies} ${ezjail_jailzfs}/${ezjail_hostname}
+
+        /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_jailzfs}/${ezjail_hostname}
       else
         check_for_zfs_exist || exerr "Error: The existing destination is not a ZFS filesystem."
       fi
@@ -772,9 +789,7 @@ delete)
   [ "${ezjail_config}" ] || exerr "Error: Nothing known about jail ${ezjail_name}."
 
   # check for an active ZFS zpool
-  if [ "${ezjail_imagetype}" = "zfs" ]; then
-    check_for_zpool
-  fi
+  [ "${ezjail_imagetype}" = "zfs" ] && check_for_zpool
 
   if [ "${ezjail_id}" ]; then
     # if jail is still running, refuse to go any further
@@ -809,7 +824,6 @@ delete)
      [ "${ezjail_image}" ] && rm -f "${ezjail_image}" "${ezjail_image%.img}.device"
     ;;
     zfs)
-      echo "ZFS: delete the jails ZFS"
       /sbin/zfs destroy -r ${ezjail_jailzfs}/${ezjail_hostname}
     ;;
     esac
@@ -870,11 +884,6 @@ setup|update)
   # Check if some action was requested
   [ "${ezjail_installaction}" ] || exerr "Error: No install action has been chosen.\n  Please note that ezjails behaviour changed. Rebuilding the world no longer is default.\n  Run '${ezjail_admin} update -b' to build and install a world from source or '${ezjail_admin} update -i' to install an already built world."
 
-  if [ "${ezjail_use_zfs}" = "YES" ]; then
-    check_for_zpool
-    zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_jailzfs}
-  fi
-
   if [ "${ezjail_installaction}" = "none" ]; then
     # check, whether ezjail has been setup correctly. existence of
     # ezjail_jailbase is our indicator
@@ -911,9 +920,8 @@ setup|update)
     # Normally fulljail should be renamed by past ezjail-admin commands.
     # However those may have failed
     if [ "${ezjail_use_zfs}" = "YES" ]; then
-      echo "ZFS: manage basejail and newjail"
-      [ -d "${ezjail_jailfull}" ] && /sbin/zfs destroy -R "${ezjail_jailzfs}/fulljail"  && rm -rf "${ezjail_jailfull}"
-      [ ! -d " ${ezjail_jaildir}" ] && /sbin/zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}
+      ensure_jailzfs
+      [ -d "${ezjail_jailfull}" ] && /sbin/zfs destroy -R "${ezjail_jailzfs}/fulljail" 2>/dev/null && rm -rf "${ezjail_jailfull}"
       /sbin/zfs create "${ezjail_jailzfs}/fulljail" || exerr "Error: Cannot create temporary Jail directory."
     else
       [ -d "${ezjail_jailfull}" ] && chflags -R noschg "${ezjail_jailfull}" && rm -rf "${ezjail_jailfull}"
@@ -993,11 +1001,9 @@ install)
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
   if [ "${ezjail_use_zfs}" = "YES" ]; then
-    check_for_zpool
-    echo "ZFS: manage basejail and newjail"
-    [ -d "${ezjail_jailfull}" ] && /sbin/zfs destroy -R "${ezjail_jailzfs}/fulljail"  && rm -rf "${ezjail_jailfull}"
-    [ ! -d " ${ezjail_jaildir}" ] && /sbin/zfs create -p -o mountpoint=${ezjail_jaildir} ${ezjail_jailzfs}
-    /sbin/zfs create -p "${ezjail_jailzfs}/fulljail" || exerr "Error: Cannot create temporary Jail directory."
+    ensure_jailzfs
+    [ -d "${ezjail_jailfull}" ] && /sbin/zfs destroy -R "${ezjail_jailzfs}/fulljail" 2>/dev/null && rm -rf "${ezjail_jailfull}"
+    /sbin/zfs create "${ezjail_jailzfs}/fulljail" || exerr "Error: Cannot create temporary Jail directory."
   else
     [ -d "${ezjail_jailfull}" ] && chflags -R noschg "${ezjail_jailfull}" && rm -rf "${ezjail_jailfull}"
     mkdir -p "${ezjail_jailfull}" || exerr "Error: Cannot create temporary Jail directory."
