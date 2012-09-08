@@ -392,6 +392,9 @@ parse_gbde_attach_args () {
 }
 
 check_for_zfs () {
+  # check if the ezjail zfs has been specified
+  [ -n "${ezjail_jailzfs}" ] || exerr "Error: The variable ezjail_jailzfs needs to point a zfs ezjail can work in.\n  Set it in your ezjail.conf."
+
   # check the ZFS version
   _zfs_version=`sysctl -nq vfs.zfs.version.spa`
   [ -z "${_zfs_version}" -o "${_zfs_version}" -lt 13 ] && exerr "Error: ZFS is not loaded or your ZFS version is not supported."
@@ -471,13 +474,17 @@ create)
   # we need at least a name and an ip for new jail
   [ "${ezjail_name}" -a "${ezjail_ips}" -a $# -eq 2 ] || exerr ${ezjail_usage_create}
 
-  # check for an active ZFS zpool
-  [ "${ezjail_imagetype}" = "zfs" ] && check_for_zpool
-
   # check for sanity of settings concerning the image feature
   if [ "${ezjail_imagetype}" != "zfs" ]; then
     [ -z "${ezjail_imagetype}" -o "${ezjail_exists}" -o "${ezjail_imagesize}" ] || exerr "Error: Image jails need an image size."
   fi
+
+  # If user wants jails to be in zfs by default, and did not override it on
+  # the command line, make the jail a zfs one
+  [ "${ezjail_use_zfs_for_jails}" = "YES" -a ! "${ezjail_imagetype}" ] && ezjail_imagetype=zfs
+
+  # check for an active ZFS zpool
+  [ "${ezjail_imagetype}" = "zfs" ] && check_for_zpool
 
   # check for a sane image type
   case ${ezjail_imagetype} in ""|simple|bde|eli|zfs) ;; *) exerr ${ezjail_usage_create};; esac
@@ -617,7 +624,7 @@ create)
       ;;
     zfs)
       if [ -z "${ezjail_exists}" ]; then
-        [ -n "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="-o quota=${ezjail_imagesize} -o compression=lzjb"
+        [ "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="${ezjail_zfs_jail_properties} -o quota=${ezjail_imagesize}"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
 
         /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_jailzfs}/${ezjail_hostname}
