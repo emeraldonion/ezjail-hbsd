@@ -168,7 +168,10 @@ ZFS filesystem using the
 variable.
 .Pp
 You can use ZFS jails without installing the basejail into its own ZFS
-filesystem and vice versa.
+filesystem and vice versa. In order to create ZFS jails by default, set the
+.Dq Li $ezjail_use_zfs_for_jails
+variable to
+.Dq YES .
 .Ss Per-Jail options
 As we saw earlier, a jail is described by a file in
 .Pa EZJAIL_PREFIX/etc/ezjail/ .
