@@ -175,6 +175,16 @@ ZFS-datasets.
 .br
 Default:
 .Em NO .
+.It ezjail_use_zfs_for_jails (bool)
+Set to YES, if ezjail should manage all new jails in their own
+ZFS-datasets. To override that on the command line, use
+.Cm ezjail-admin create -c simple
+for image based jails or
+.Cm ezjail-admin create -c ''
+for non-image jails. 
+.br
+Default:
+.Em NO .
 .It ezjail_jailzfs (str)
 The name of the parent ZFS-dataset which ezjail will use to create
 jails on. It will be mounted in
