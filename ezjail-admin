@@ -1104,7 +1104,7 @@ console)
     [ "${ezjail_forcestart}" ] || exerr "Error: Jail ${ezjail_name} appears not to be running\n  Start it first, or use '${ezjail_admin} console -f ${ezjail_name}' to force start."
 
     # This one will also exerr on failure
-    start_stop_jail_by_script onestart
+    start_stop_jail_by_script onestart ${ezjail_name}
   fi
 
   # use the jails FIB if there is one
