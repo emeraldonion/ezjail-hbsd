@@ -873,14 +873,14 @@ list)
 ######################## ezjail-admin UPDATE ########################
 setup|update)
   # Clean variables, prevent pollution
-  unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination ezjail_sourcetree
+  unset ezjail_provideports ezjail_installaction ezjail_osversion_source ezjail_osversion_destination ezjail_source
 
   shift; while getopts :biuUpPs: arg; do case ${arg} in
     b) ezjail_installaction="buildworld installworld";;
     i) ezjail_installaction="installworld";;
     u) ezjail_installaction="freebsd-update";;
     U) ezjail_installaction="freebsd-upgrade";;
-    s) ezjail_sourcetree=${OPTARG};;
+    s) ezjail_source=${OPTARG};;
     P) ezjail_provideports="YES"; ezjail_installaction="none";;
     p) ezjail_provideports="YES";;
     ?) exerr ${ezjail_usage_update};;
@@ -905,10 +905,10 @@ setup|update)
   elif [ "${ezjail_installaction}" = "freebsd-upgrade" ]; then
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot update a base jail until it is created.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
 
-    [ -z "${ezjail_sourcetree}" ] && exerr "Error: Can not (yet automatically) infer the basejail's osversion.\n  Please run ${ezjail_admin} update -U -s X.X-RELEASE, with X.X-RELEASE being to osversion currently installed in the basejail in need of an upgrade."
+    [ -z "${ezjail_source}" ] && exerr "Error: Can not (yet automatically) infer the basejail's osversion.\n  Please run ${ezjail_admin} update -U -s X.X-RELEASE, with X.X-RELEASE being to osversion currently installed in the basejail in need of an upgrade."
 
     # That would be the part where we try to lookup the osversion from a file in the basejail
-    ezjail_osversion_source="${ezjail_sourcetree}"
+    ezjail_osversion_source="${ezjail_source}"
 
     # Make the host systems os version our target version
     # Users can override this by setting the UNAME_r environment variable
@@ -919,6 +919,9 @@ setup|update)
 
     # Here we should write the file with the new osversion in case of success
   else
+    # If user gave a source tree on command line, use that
+    [ "${ezjail_source}" ] && ezjail_sourcetree="${ezjail_source}"
+
     # Bump the user for some of the most common errors
     [ -d "${ezjail_sourcetree}" ] || exerr "Error: Cannot find your copy of the FreeBSD source tree in ${ezjail_sourcetree}.\n  Consider using '${ezjail_admin} install' to create the base jail from an ftp server."
     [ -e "${ezjail_sourcetree}/Makefile" ] || exerr "Error: Your source tree in ${ezjail_sourcetree} seems to be incomplete (Makefile is missing)."
