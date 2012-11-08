@@ -996,6 +996,7 @@ install)
         read ezjail_releasetmp
         [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
         ezjail_installarch=`uname -p`
+      fi
     fi
   fi
 
