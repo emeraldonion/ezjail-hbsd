@@ -980,19 +980,22 @@ install)
   # Check for basejail when not installing base jail
   [ "${ezjail_basesystem}" -o -d "${ezjail_jailbase}" ] || exerr "Error: The basejail does not exist.\n  You cannot install distribution packages before creating ezjails environment.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' using lower case parameters first."
 
-  # ftp servers normally wont provide non-RELEASE-builds
-  if [ -z "${ezjail_release}" -a "${ezjail_dir}" = "${ezjail_ftphost}" ]; then
+  if [ -z "${ezjail_release}" ]; then
+    # if no release version is requested, use the host system's
     ezjail_release=`uname -r`
     ezjail_release_major=${ezjail_release%%.*}
-    case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
-    if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
-      echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
-      [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
-      ezjail_queryftpserver || echo "... I'll continue anyway."
-      echo -n "Release [ ${ezjail_release} ]: "
-      read ezjail_releasetmp
-      [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
-      ezjail_installarch=`uname -p`
+
+    # ftp servers normally wont provide non-RELEASE-builds
+    if [ "${ezjail_dir}" = "${ezjail_ftphost}" ]; then
+      case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
+      if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
+        echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
+        [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
+        ezjail_queryftpserver || echo "... I'll continue anyway."
+        echo -n "Release [ ${ezjail_release} ]: "
+        read ezjail_releasetmp
+        [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
+        ezjail_installarch=`uname -p`
     fi
   fi
 
