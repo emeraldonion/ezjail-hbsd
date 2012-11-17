@@ -1067,6 +1067,7 @@ install)
           fetch "${ezjail_proto}://${ezjail_disturi}/${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" || continue
           xzdec ${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
         else
+          [ "${ezjail_proto}" = "ftp" ] || echo "Warning: Ignoring http protocol on FreeBSD pre 9.0"
           ftp ${ezjail_disturi}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/* || continue
           # These actions are really ugly: sources want $1 to contain the set
           # of sources to install, base asks the user if he is sure, hence the
@@ -1078,6 +1079,7 @@ install)
         fi
 
         rm -rf "${ezjail_jailtemp}"
+        break
       done
     fi
   done
