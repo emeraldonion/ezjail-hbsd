@@ -333,12 +333,12 @@ ezjail_queryftpserver () {
   TIFS=${IFS}; IFS=
   for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
     if [ ${ezjail_path} = "NO" ]; then
-      echo "Warning: I am having problems querying the ftp server you specified (${ezjail_ftphost})."
+      echo "Warning: I am having problems querying the ftp server you specified (${ezjail_disturi})."
       _ret=1; break
     fi
-    ezjail_ftpresponse=`echo ls | ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/" 2> /dev/null` 2> /dev/null
+    ezjail_ftpresponse=`echo ls | ftp "${ezjail_disturi}:${ezjail_path}/${ezjail_installarch}/" 2> /dev/null` 2> /dev/null
     if [ $? -eq 0 ]; then
-      echo -e "The ftp server you specified (${ezjail_ftphost}) seems to provide the following builds:\n${ezjail_ftpresponse}"
+      echo -e "The ftp server you specified (${ezjail_disturi}) seems to provide the following builds:\n${ezjail_ftpresponse}"
       _ret=0; break
     fi
   done
@@ -952,7 +952,7 @@ setup|update)
 ######################## ezjail-admin INSTALL ########################
 install)
   # Clean variables, prevent pollution
-  unset ezjail_release ezjail_installmanpages ezjail_installports ezjail_installsources ezjail_dir ezjail_reldir ezjail_ftpserverqueried
+  unset ezjail_release ezjail_installmanpages ezjail_installports ezjail_installsources ezjail_dir ezjail_ftpserverqueried ezjail_proto ezjail_disturi
 
   shift; while getopts :mMpPsSh:r: arg; do case ${arg} in
     m) ezjail_installmanpages=" manpages";;
@@ -971,9 +971,9 @@ install)
   ezjail_installarch=`uname -p`
   ezjail_installplatform=`uname -m`
   : ${ezjail_ftphost="ftp.freebsd.org"}
-  ezjail_ftphost=${ezjail_ftphost#ftp://}
-  ezjail_dir=${ezjail_ftphost#file://}
-  [ "${ezjail_dir%%[!/]*}" ] || ezjail_reldir=`pwd -P`
+  ezjail_proto=${ezjail_ftphost%%://*}
+  [ "${ezjail_proto}" = "${ezjail_ftphost}" ] && ezjail_proto=ftp
+  ezjail_disturi=${ezjail_ftphost#*://}
 
   [ "`sysctl -n kern.securelevel`" -gt 0 ] && exerr "Error: You are running in a secure level higher than 0.\n  ${ezjail_admin} will not install correctly.\n  Please reboot into a lower secure level."
 
@@ -986,13 +986,13 @@ install)
     ezjail_release_major=${ezjail_release%%.*}
 
     # ftp servers normally wont provide non-RELEASE-builds
-    if [ "${ezjail_dir}" = "${ezjail_ftphost}" ]; then
+    if [ "${ezjail_proto}" != "file" ]; then
       case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
       if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
         echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
         [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
-        ezjail_queryftpserver || echo "... I'll continue anyway."
-        echo -n "Release [ ${ezjail_release} ]: "
+        [ "${ezjail_proto}" != "ftp" ] || ezjail_queryftpserver || echo "... I'll continue anyway."
+        echo -n "Release to fetch [ ${ezjail_release} ]: "
         read ezjail_releasetmp
         [ "${ezjail_releasetmp}" ] && ezjail_release=${ezjail_releasetmp}
         ezjail_installarch=`uname -p`
@@ -1003,14 +1003,15 @@ install)
   # From 9.0 releases come with a new layout
   # It is now a single archive ${pkg}.txz instead of a list of archive parts under ${pkg}/*
   # man pages come with the base
+  # We can use fetch to connect to the ftp host, allowing the use of proxies. We needed ftp
+  # in pre-9.0-releases to make ${pkg}/* work.
   # We assume for now that jail's platform is supposed to be that of the host. That may change later.
   ezjail_release_major=${ezjail_release%%.*}
+  [ "${ezjail_release_major}" -eq "${ezjail_release_major}" ] 2>/dev/null || exerr ${ezjail_release} does not look like a valid FreeBSD version descriptor
   if [ ${ezjail_release_major} -ge 9 -a -n "${ezjail_installmanpages}" ]; then
     echo "Note: From FreeBSD 9.0 man pages are part of the base package"
     unset ezjail_installmanpages
   fi
-  [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
-  [ ${ezjail_release_major} -ge 9 ] && ezjail_pkgsuffix=".txz" || ezjail_pkgsuffix="/*"
 
   # Normally fulljail should be renamed by past ezjail-admin commands.
   # However those may have failed
@@ -1030,46 +1031,54 @@ install)
   rm -rf "${ezjail_jailtemp}"
   for pkg in ${ezjail_basesystem} ${ezjail_installmanpages} ${ezjail_installsources}; do
 
-    # The first case means, that a remote host has been specified.
-    if [ "${ezjail_dir}" = "${ezjail_ftphost}" ]; then
+    if [ "${ezjail_proto}" = "file" ]; then
+      # The easy case means, that a local distribution directory has been specified.
+
+      if [ ${ezjail_release_major} -ge 9 ]; then
+        [ -r "${ezjail_disturi}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_disturi}/${pkg}.txz"
+        xzdec ${ezjail_disturi}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+      else
+        ezjail_backdir=`pwd -P`
+        cd "${ezjail_disturi}/${pkg}" || exerr "Error: Could not cd to ${ezjail_disturi}."
+        [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
+        set -- all
+        [ -f install.sh ] && yes | . install.sh
+        [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+        cd "${ezjail_backdir}"
+      fi
+    else
+      # The hard case means, we have to fetch the distribution files from a remote server
+
       # Create and try to access temp dir
       mkdir -p "${ezjail_jailtemp}" || exerr "Error: Could not create temporary base jail directory ${ezjail_jailtemp}."
       cd "${ezjail_jailtemp}" || exerr "Error: Could not cd to ${ezjail_jailtemp}."
 
       # Try all paths as stolen from sysinstall, break on success.
       for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
+        # Once we tried all paths, we give up and nudge the user
         if [ "${ezjail_path}" = "NO" ]; then
-          echo -e "\nCould not fetch ${pkg} from ${ezjail_ftphost}.\n  Maybe your release (${ezjail_release}) is specified incorrectly or the host ${ezjail_ftphost} does not provide that release build.\n  Use the -r option to specify an existing release or the -h option to specify an alternative ftp server." >&2
-          [ "${ezjail_ftpserverqueried}" ] || ezjail_queryftpserver
+          echo -e "\nCould not fetch ${pkg} from ${ezjail_proto}://${ezjail_disturi}.\n  Maybe your release (${ezjail_release}) is specified incorrectly or the host ${ezjail_disturi} does not provide that release build.\n  Use the -r option to specify an existing release or the -h option to specify an alternative ftp server." >&2
+          [ "${ezjail_proto}" = "ftp" -a -z "${ezjail_ftpserverqueried}" ] && ezjail_queryftpserver
           exit 1
         fi
-        ftp "${ezjail_ftphost}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}${ezjail_pkgsuffix}" && break
+
+        # Fetching and extraction distributions has become much easier from 9.0
+        if [ ${ezjail_release_major} -ge 9 ]; then
+          fetch "${ezjail_proto}://${ezjail_disturi}/${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" || continue
+          xzdec ${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+        else
+          ftp ${ezjail_disturi}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/* || continue
+          # These actions are really ugly: sources want $1 to contain the set
+          # of sources to install, base asks the user if he is sure, hence the
+          # yes and the set -- all
+          [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
+          set -- all
+          [ -f install.sh ] && yes | . install.sh
+          [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+        fi
+
+        rm -rf "${ezjail_jailtemp}"
       done
-
-      if [ ${ezjail_release_major} -ge 9 ]; then
-        xzdec ${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
-      else
-        # These actions are really ugly: sources want $1 to contain the set
-        # of sources to install, base asks the user if he is sure, hence the
-        # yes and the set -- all
-        [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
-        set -- all
-        [ -f install.sh ] && yes | . install.sh
-        [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
-      fi
-
-      rm -rf "${ezjail_jailtemp}"
-    else
-      if [ ${ezjail_release_major} -ge 9 ]; then
-        [ -r "${ezjail_reldir}/${ezjail_dir}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz"
-        xzdec ${ezjail_reldir}/${ezjail_dir}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
-      else
-        cd "${ezjail_reldir}/${ezjail_dir}/${pkg}" || exerr "Error: Could not cd to ${ezjail_dir}."
-        [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
-        set -- all
-        [ -f install.sh ] && yes | . install.sh
-        [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
-      fi
     fi
   done
 
