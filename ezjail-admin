@@ -915,7 +915,10 @@ setup|update)
     ezjail_osversion_target="`uname -r`"
 
     # Finally run freebsd-update to upgrade our basejail
-    env UNAME_r="${ezjail_osversion_source}" freebsd-update -b ${ezjail_jailbase} -r ${ezjail_osversion_target} upgrade install
+    env UNAME_r="${ezjail_osversion_source}" freebsd-update -b ${ezjail_jailbase} -r ${ezjail_osversion_target} upgrade
+    while [ $? -eq 0 ]; do
+        env UNAME_r="${ezjail_osversion_source}" freebsd-update -b ${ezjail_jailbase} -r ${ezjail_osversion_target} install
+    done
 
     # Here we should write the file with the new osversion in case of success
   else
