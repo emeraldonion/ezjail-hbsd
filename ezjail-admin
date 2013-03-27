@@ -1028,6 +1028,7 @@ install)
   # for post-install man/src installations
   [ "${ezjail_basesystem}" ] && DESTDIR="${ezjail_jailfull}" || DESTDIR="${ezjail_jailbase}"
 
+  ezjail_makeabsolute ezjail_jailtemp
   rm -rf "${ezjail_jailtemp}"
   for pkg in ${ezjail_basesystem} ${ezjail_installmanpages} ${ezjail_installsources}; do
 
@@ -1038,13 +1039,12 @@ install)
         [ -r "${ezjail_disturi}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_disturi}/${pkg}.txz"
         xzdec ${ezjail_disturi}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
       else
-        ezjail_backdir=`pwd -P`
-        cd "${ezjail_disturi}/${pkg}" || exerr "Error: Could not cd to ${ezjail_disturi}."
+        ezjail_makeabsolute ezjail_disturi
+        cd "${ezjail_disturi}/${pkg}" || exerr "Error: Could not cd to ${ezjail_disturi}/${pkg}."
         [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
         set -- all
         [ -f install.sh ] && yes | . install.sh
         [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
-        cd "${ezjail_backdir}"
       fi
     else
       # The hard case means, we have to fetch the distribution files from a remote server
@@ -1066,8 +1066,9 @@ install)
         if [ ${ezjail_release_major} -ge 9 ]; then
           fetch "${ezjail_proto}://${ezjail_disturi}/${ezjail_path}/${ezjail_installplatform}/${ezjail_installarch}/${ezjail_release}/${pkg}.txz" || continue
           xzdec ${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+          _res=$?
         else
-          [ "${ezjail_proto}" = "ftp" ] || echo "Warning: Ignoring http protocol on FreeBSD pre 9.0"
+          [ "${ezjail_proto}" = "ftp" ] || echo "Warning: Ignoring ${ezjail_proto} protocol on FreeBSD pre 9.0"
           ftp ${ezjail_disturi}:${ezjail_path}/${ezjail_installarch}/${ezjail_release}/${pkg}/* || continue
           # These actions are really ugly: sources want $1 to contain the set
           # of sources to install, base asks the user if he is sure, hence the
@@ -1075,10 +1076,11 @@ install)
           [ "${pkg}" = "base" ] && echo "Ignore the next question, ezjail answers it for you."
           set -- all
           [ -f install.sh ] && yes | . install.sh
-          [ $? -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
+          _res=$?
         fi
 
         rm -rf "${ezjail_jailtemp}"
+        [ ${_res} -eq 0 ] || exerr "Error: Package install script for ${pkg} failed."
         break
       done
     fi
