@@ -112,6 +112,7 @@ do_cmd()
 
       eval ezjail_zfs_datasets=\"\$jail_${ezjail_safename}_zfs_datasets\"
       eval ezjail_cpuset=\"\$jail_${ezjail_safename}_cpuset\"
+      eval ezjail_post_start_script=\"\$jail_${ezjail_safename}_post_start_script\"
 
       # Attach ZFS-datasets to the jail
       for zfs in ${ezjail_zfs_datasets}; do
@@ -120,6 +121,9 @@ do_cmd()
 
       # Configure processor sets for the jail via cpuset(1)
       [ -z "${ezjail_cpuset}" ] || /usr/bin/cpuset -l ${ezjail_cpuset} -j ${ezjail_id} || echo -n "Error: The defined cpuset is malformed"
+
+      # Run post start script
+      [ -z "${ezjail_post_start_script}" ] || "${ezjail_post_start_script}" ${ezjail_id} "${ezjail}" || echo -n "Error: Post Start Script failed"
     done
   fi
 
