@@ -838,8 +838,11 @@ delete)
     zfs)
       /sbin/zfs destroy -r ${ezjail_jailzfs}/${ezjail_hostname}
     ;;
+    *)
+      chflags -R noschg "${ezjail_rootdir}"
+    ;;
     esac
-    chflags -R noschg "${ezjail_rootdir}"; rm -rf "${ezjail_rootdir}"
+    rm -rf "${ezjail_rootdir}"
   fi
 
   ;;
