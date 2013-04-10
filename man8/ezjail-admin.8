@@ -16,6 +16,7 @@
 .Op Fl r Ar jailroot
 .Op Fl a Ar archive
 .Op Fl c Ar jailtype Fl s Ar imagesize Op Fl C Ar attachargs
+.Op Fl z Ar parentzfs
 .Bk -words
 .Ar jailname ipaddress Ns Op Ar ,ipaddress2,...
 .Ek
@@ -276,20 +277,34 @@ jail is backed with a
 .Xr zfs 8
 filesystem, whose initial quota is given with the
 .Fl s
-option. The filesystem is created in the
+option. The filesystem by default
+(see the
+.Fl z
+option) is created in the
 .Dq Li $ezjail_jailzfs
-parent filesystem and by default compressed using the lzjb method, as set in
+parent filesystem and compressed using the lzjb method, as set in
 the
 .Dq Li ezjail_zfs_jail_properies
 variable, both values configured in
-.Xr ezjail.conf 5
+.Xr ezjail.conf 5 .
 .Pp
 In each case, the
 .Fl s
-flag is mandatory when creating such a jail. An empty directory (without the
+flag is mandatory when creating a file backed jail (i.e. any image that is
+not zfs backed). An empty directory (without the
 .Pa .img
 suffix in the case of file-based jails) will be created and used as a mount
 point when running the jail.
+.It Fl z Ar parentzfs
+Normally zfs jails are created in a child of the same zfs, ezjail keeps its
+working directories in, as configured in the
+.Dq Li ezjail_jailzfs
+variable set in
+.Xr ezjail.conf 5 .
+Use this option to override this default.
+.Pp
+This option implies
+.Fl c Ar zfs .
 .It Fl s Ar imagesize
 Allocate this size to the jail. Without an unit, the size is in bytes. The
 valid suffix values are b/B for blocks (i. e. 512 bytes), k/K for kilobytes,
@@ -605,3 +620,10 @@ filesystem is taken first.
 .Sh AUTHOR
 .An Dirk Engling 
 .Aq erdgeist@erdgeist.org .
+.Pp
+The man page is based on a draft by
+.An JoeB
+.Aq joeb1@a1poweruser.com
+and was rewritten by
+.An Frederic Perrin
+.Aq frederic.perrin@resel.fr .
