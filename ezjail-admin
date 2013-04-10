@@ -418,8 +418,8 @@ check_for_zpool () {
 check_for_zfs_exist () {
   # check if the zfs we want to use already exists or not, return 0 if it does and 1 if not
   _exit=1
-  _zfs_status=`/sbin/zfs list -H -o name ${ezjail_jailzfs}/${ezjail_hostname} 2> /dev/null`
-  [ "${_zfs_status}" = "${ezjail_jailzfs}/${ezjail_hostname}" ] && _exit=0
+  _zfs_status=`/sbin/zfs list -H -o name ${ezjail_parentfs}/${ezjail_hostname} 2> /dev/null`
+  [ "${_zfs_status}" = "${ezjail_parentfs}/${ezjail_hostname}" ] && _exit=0
   return ${_exit}
 }
 
@@ -456,7 +456,7 @@ case "$1" in
 ######################## ezjail-admin CREATE ########################
 create)
   # Clean variables, prevent pollution
-  unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
+  unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_parentfs ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
   shift; while getopts :f:r:s:xbic:C:a:A: arg; do case ${arg} in
     x) ezjail_exists="YES";;
     r) ezjail_rootdir=${OPTARG};;
@@ -468,6 +468,8 @@ create)
     b) ezjail_forceblocking="YES";;
     i) : ${ezjail_imagetype="simple"};;
     s) ezjail_imagesize=${OPTARG};;
+    z) ezjail_imagetype="zfs";
+       ezjail_parentfs=${OPTARG};;
     ?) exerr ${ezjail_usage_create};;
   esac; done; shift $(( ${OPTIND} - 1 ))
 
@@ -625,11 +627,12 @@ create)
       ezjail_device=${ezjail_imagedevice}
       ;;
     zfs)
+      ${ezjail_parentfs=${ezjail_jailzfs}}
       if [ -z "${ezjail_exists}" ]; then
         [ "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="${ezjail_zfs_jail_properties} -o quota=${ezjail_imagesize}"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
 
-        /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_jailzfs}/${ezjail_hostname}
+        /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_parentfs}/${ezjail_hostname}
       else
         check_for_zfs_exist || exerr "Error: The existing destination is not a ZFS filesystem."
       fi
@@ -663,8 +666,8 @@ create)
     if [ "${ezjail_imagetype}" = "zfs" -a "${ezjail_use_zfs}" = "YES" ]; then
       # create ZFS filesystem first when using ZFS
       /sbin/zfs snapshot ${ezjail_jailzfs}/newjail@_createnewjailtmp
-      /sbin/zfs send ${ezjail_jailzfs}/newjail@_createnewjailtmp | zfs receive -F ${ezjail_jailzfs}/${ezjail_hostname}
-      /sbin/zfs destroy ${ezjail_jailzfs}/${ezjail_hostname}@_createnewjailtmp
+      /sbin/zfs send ${ezjail_jailzfs}/newjail@_createnewjailtmp | zfs receive -F ${ezjail_parentfs}/${ezjail_hostname}
+      /sbin/zfs destroy ${ezjail_parentfs}/${ezjail_hostname}@_createnewjailtmp
       /sbin/zfs destroy ${ezjail_jailzfs}/newjail@_createnewjailtmp
     else
       mkdir -p "${ezjail_rootdir}" && cd "${ezjail_jailtemplate}" && find . | cpio -p -v "${ezjail_rootdir}" > /dev/null
