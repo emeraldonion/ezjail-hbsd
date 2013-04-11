@@ -6,7 +6,7 @@
 
 # Location of jail root directories
 #
-# Note: If you have spread your jails to multiple locations, use softlinks 
+# Note: If you have spread your jails to multiple locations, use softlinks
 # to collect them in this directory
 # ezjail_jaildir=/usr/jails
 
@@ -18,10 +18,6 @@
 
 # Location of your copy of FreeBSD's source tree
 # ezjail_sourcetree=/usr/src
-
-# In case you want to provide a copy of ports tree in base jail, set this to
-# a cvsroot near you
-# ezjail_portscvsroot=freebsdanoncvs@anoncvs.FreeBSD.org:/home/ncvs
 
 # This is where the install sub command defaults to fetch its packages from
 # ezjail_ftphost=ftp.freebsd.org
@@ -41,7 +37,7 @@
 
 # Default options for newly created jails
 #
-# Note: Be VERY careful about disabling ezjail_mount_enable. Mounting 
+# Note: Be VERY careful about disabling ezjail_mount_enable. Mounting
 # basejail via nullfs depends on this. You will have to find other
 # ways to provide your jail with essential system files
 # ezjail_mount_enable="YES"
@@ -50,11 +46,16 @@
 # ezjail_procfs_enable="YES"
 # ezjail_fdescfs_enable="YES"
 
+# ZFS options
+
 # Setting this to YES will start to manage the basejail and newjail in ZFS
 # ezjail_use_zfs="YES"
+
 # Setting this to YES will manage ALL new jails in their own zfs
 # ezjail_use_zfs_for_jails="YES"
+
 # The name of the ZFS ezjail should create jails on, it will be mounted at the ezjail_jaildir
+
 # ezjail_jailzfs="tank/ezjail"
 # ADVANCED, be very careful!
 # ezjail_zfs_properties="-o compression=lzjb -o atime=off"

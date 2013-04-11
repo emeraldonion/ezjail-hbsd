@@ -20,7 +20,6 @@ ezjail_jailcfgs="${ezjail_etc}/ezjail"
 : ${ezjail_jailtemp="${ezjail_jaildir}/ezjailtemp"}
 : ${ezjail_flavours_dir="${ezjail_jaildir}/flavours"}
 : ${ezjail_archivedir="${ezjail_jaildir}/ezjail_archives"}
-: ${ezjail_portscvsroot="freebsdanoncvs@anoncvs.FreeBSD.org:/home/ncvs"}
 : ${ezjail_sourcetree="/usr/src"}
 : ${ezjail_uglyperlhack="YES"}
 : ${ezjail_default_execute="/usr/bin/login -f root"}
@@ -312,20 +311,11 @@ ezjail_splitworld() {
 # The user may want to have a ports tree in basejail
 ezjail_updateports () {
   local _portsnap_fetch="fetch"
-  # if /usr/ports/CVS exists, assume cvs up is safe
-  # this is legacy
-  if [ -f "${ezjail_jailbase}/usr/ports/CVS/Root" ]; then
-    echo -n "Updating ports from "; cat "${ezjail_jailbase}/usr/ports/CVS/Root"
-    echo "Warning: Upgrading legacy ports copy. Consider removing ${ezjail_jailbase}/usr/ports and use the new portsnap strategy instead."
-    echo "Gathering local information may take a while."
-    cd "${ezjail_jailbase}/usr/ports/" && cvs -d "${ezjail_portscvsroot}" up -Pd
-  else
-    [ -z "$TERM" -o "$TERM" = "dumb" ] && _portsnap_fetch="cron"
-    portsnap ${_portsnap_fetch}
-    [ -d "${ezjail_jailbase}/usr/ports" ] && ezjail_portsnapaction="update"
-    portsnap -p "${ezjail_jailbase}/usr/ports" ${ezjail_portsnapaction:-"extract"}
-  fi
-  [ $? -eq 0 ] || exerr "Error: Updating ports failed."
+
+  [ -z "$TERM" -o "$TERM" = "dumb" ] && _portsnap_fetch="cron"
+  portsnap ${_portsnap_fetch}
+  [ -d "${ezjail_jailbase}/usr/ports" ] && ezjail_portsnapaction="update"
+  portsnap -p "${ezjail_jailbase}/usr/ports" ${ezjail_portsnapaction:-"extract"} || exerr "Error: Updating ports failed."
 }
 
 # Try to fetch the list of releases the server provides
