@@ -733,6 +733,10 @@ EOF
 
   TIFS=${IFS}; IFS=,
   for ezjail_ip in ${ezjail_ips}; do
+    # From 9.0 IP addresses can be prefixed by their interface, for now ignore
+    # the prefix
+    ezjail_ip="${ezjail_ip#*|}"
+
     case ${ezjail_ip} in *.*.*.*) _ping=ping;; *) _ping=ping6;; esac
     # check, whether IP is configured on a local interface, warn if it isnt
     ${_ping} -S ${ezjail_ip} -q -c 1 localhost >/dev/null 2>/dev/null
@@ -860,7 +864,7 @@ list)
     TIFS=${IFS}; IFS=,; unset _multiline
     for ezjail_ip in ${ezjail_ips:="-"}; do
       if [ -z "${_multiline}" ]; then
-        printf "%-3s %-4s %-15s %-30s %s\\n" "${ezjail_state}" "${ezjail_id:-N/A}" "${ezjail_ip}" "${ezjail_hostname}" "${ezjail_rootdir}"
+        printf "%-3s %-4s %-15s %-30s %s\\n" "${ezjail_state}" "${ezjail_id:-N/A}" "${ezjail_ip#*|}" "${ezjail_hostname}" "${ezjail_rootdir}"
         _multiline=yes
       else
         printf "    %-4s %s\\n" "${ezjail_id:-N/A}" "${ezjail_ip}"
