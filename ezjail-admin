@@ -732,15 +732,19 @@ EOF
   #
 
   TIFS=${IFS}; IFS=,
-  for ezjail_ip in ${ezjail_ips}; do
+  for ezjail_ip_in in ${ezjail_ips}; do
     # From 9.0 IP addresses can be prefixed by their interface, for now ignore
     # the prefix
-    ezjail_ip="${ezjail_ip#*|}"
+    ezjail_ip="${ezjail_ip_in#*|}"
 
-    case ${ezjail_ip} in *.*.*.*) _ping=ping;; *) _ping=ping6;; esac
-    # check, whether IP is configured on a local interface, warn if it isnt
-    ${_ping} -S ${ezjail_ip} -q -c 1 localhost >/dev/null 2>/dev/null
-    [ $? -eq 0 ] || echo "Warning: IP ${ezjail_ip} not configured on a local interface."
+    # If the IP address is not automatically configured, test if it is configured
+    # on a local interface
+    if [ "${ezjail_ip}" = "${ezjail_ip_in}" ]; then
+      case ${ezjail_ip} in *.*.*.*) _ping=ping;; *) _ping=ping6;; esac
+      # check, whether IP is configured on a local interface, warn if it isnt
+      ${_ping} -S ${ezjail_ip} -q -c 1 localhost >/dev/null 2>/dev/null
+      [ $? -eq 0 ] || echo "Warning: IP ${ezjail_ip} not configured on a local interface."
+    fi
 
     # check, whether some host system services do listen on the Jails IP
     IFS=_
