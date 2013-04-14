@@ -193,8 +193,16 @@ are handled by ezjail, replacing JAILNAME with the actual name of the jail:
 The hostname of the jail. Defaults to the name of the jail, unless
 special characters needed to be stripped.
 .It jail_JAILNAME_ip
-The IP addresses the jail is allowed to use. Since FreeBSD 7.2,
+The IP addresses the jail is allowed to use.
+.Pp
+Since FreeBSD 7.2,
 several IP addresses may be given, separated by commas.
+.Pp
+Since FreeBSD 9.0
+each IP address can be prefixed by an interface name followed by the pipe
+symbol. It will then automatically be configured on that interface when the
+jail is started and removed from the interface when the jail stops. (You
+will probably have to escape the pipe symbol, though.)
 .It jail_JAILNAME_rootdir
 The directory holding the jail files (the directory used as a mount
 point for file-based jails). Defaults to the jail name inside
@@ -284,6 +292,14 @@ The network view to give to the jail (see
 when starting it. Taken from the
 .Fl f
 option when configuring the jail; the empty string otherwise.
+.It ezjail_JAILNAME_parameters
+The parameter set to be configured to the jail (see
+.Xr jail 8 )
+when starting it. You need to configure this by hand.
+.It ezjail_JAILNAME_post_start_script
+The path to a script that will be executed after the jail
+successfully was created. The script receives two parameters,
+the jid and the jail name.  You need to configure this by hand.
 .El
 .Pp
 In addition to these
@@ -625,12 +641,13 @@ Remember this passphrase, you will be asked for the passphrase every time
 you want to start this jail. As they require administrator interaction,
 jails backed by an encrypted file are not automatically started when the
 system boots.
-.It Nm Cm create Fl c Ar zfs Fl s Ar 1G sandbox4 10.0.10.6
+.It Nm Cm create Fl c Ar zfs Fl s Ar 1G sandbox4 em1\[rs]|10.0.10.6
 This creates a new zfs filesystem based jail with a default quota of 1
 gigabyte using lzjb compression. It uses the parent ZFS filesystem configured
 in the
 .Dq Li $ezjail_jailzfs
-variable to create the filesystem in.
+variable to create the filesystem in. The jail command will add the ip
+address 10.0.10.6 as an alias on the device em1 before starting the jail.
 .El
 .Sh FILES
 .Pa EZJAIL_PREFIX/bin/ezjail-admin

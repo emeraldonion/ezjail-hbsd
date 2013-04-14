@@ -184,13 +184,15 @@ assign several several IPv4 or IPv6 addresses to a jail, by separating them
 with commas. Previous versions of FreeBSD allowed only a single IPv4 address
 per jail.
 .Pp
-The addresses of the jail are not configured on the host.
+From FreeBSD 9.0 the ipaddresses may be prefixed with an interface name, followed
+by the pipe symbol. It will then automatically be configured as an alias on that
+interface when the jail starts. Else
 .Nm
 will display a warning if the requested address is not found on any interface,
 and the jail will probably not start.
 .Pp
 It is common to bind jails to loopback addresses, so they provide services
-visible to other jails only. 
+visible to other jails only.
 .El
 .Pp
 The following options are available:
