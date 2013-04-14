@@ -180,6 +180,7 @@ writejailinfo () {
   echo export jail_${ezjail_safename}_cpuset=\"${ezjail_cpuset}\"
   echo export jail_${ezjail_safename}_fib=\"${ezjail_fib}\"
   echo export jail_${ezjail_safename}_parameters=\"${ezjail_parameters}\"
+  echo export jail_${ezjail_safename}_post_start_script=\"${ezjail_post_start_script}\"
 
   ) > "${ezjail_destconf}"
 
@@ -228,6 +229,7 @@ fetchjailinfo () {
   eval ezjail_cpuset=\"\$jail_${ezjail_safename}_cpuset\"
   eval ezjail_fib=\"\$jail_${ezjail_safename}_fib\"
   eval ezjail_parameters=\"\$jail_${ezjail_safename}_parameters\"
+  eval ezjail_post_start_script=\"\$jail_${ezjail_safename}_post_start_script\"
 
   ezjail_softlink=${ezjail_jaildir}/`basename -- "${ezjail_rootdir}"`
   ezjail_devicelink="${ezjail_rootdir}.device"
