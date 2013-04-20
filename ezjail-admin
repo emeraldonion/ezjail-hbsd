@@ -410,8 +410,9 @@ check_for_zpool () {
 check_for_zfs_exist () {
   # check if the zfs we want to use already exists or not, return 0 if it does and 1 if not
   _exit=1
-  _zfs_status=`/sbin/zfs list -H -o name ${ezjail_parentfs}/${ezjail_hostname} 2> /dev/null`
-  [ "${_zfs_status}" = "${ezjail_parentfs}/${ezjail_hostname}" ] && _exit=0
+  _to_check=$1
+  _zfs_status=`/sbin/zfs list -H -o name ${_to_check} 2> /dev/null`
+  [ "${_zfs_status}" = "${_to_check}" ] && _exit=0
   return ${_exit}
 }
 
@@ -619,14 +620,16 @@ create)
       ezjail_device=${ezjail_imagedevice}
       ;;
     zfs)
-      ${ezjail_parentfs=${ezjail_jailzfs}}
+      : ${ezjail_parentfs=${ezjail_jailzfs}}
       if [ -z "${ezjail_exists}" ]; then
         [ "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="${ezjail_zfs_jail_properties} -o quota=${ezjail_imagesize}"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
 
+        check_for_zfs_exist "${ezjail_parentfs} || exerr "Error: The parent zfs dataset does not exist.\n  Use 'zfs create -p ${ezjail_parentfs}' to create it."
+
         /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_parentfs}/${ezjail_hostname}
       else
-        check_for_zfs_exist || exerr "Error: The existing destination is not a ZFS filesystem."
+        check_for_zfs_exist "${ezjail_parentfs}/${ezjail_hostname}" || exerr "Error: The existing destination is not a ZFS filesystem."
       fi
       ;;
 
