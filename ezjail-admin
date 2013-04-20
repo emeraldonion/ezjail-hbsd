@@ -42,9 +42,9 @@ ezjail_basesystem="base"
 case `uname -p` in amd64) ezjail_dirlist="${ezjail_dirlist} usr/lib32"; ezjail_basesystem="${ezjail_basesystem} lib32";; esac
 
 # Synopsis messages
-ezjail_usage_ezjailadmin="${ezjail_admin} v3.2\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|update] {params}"
+ezjail_usage_ezjailadmin="${ezjail_admin} v3.3\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|update] {params}"
 ezjail_usage_install="Usage: ${ezjail_admin} install [-mMpPsS] [-h host] [-r release]"
-ezjail_usage_create="Usage: ${ezjail_admin} create [-xbi] [-f flavour] [-r jailroot] [-s size] [-c bde|eli|zfs] [-C args] [-a archive] jailname jailip"
+ezjail_usage_create="Usage: ${ezjail_admin} create [-xbi] [-f flavour] [-r jailroot] [-s size] [-c bde|eli|zfs] [-C args] [-a archive] [-z parentzfs] jailname jailip"
 ezjail_usage_delete="Usage: ${ezjail_admin} delete [-wf] jailname"
 ezjail_usage_update="Usage: ${ezjail_admin} update [-s sourcetree|sourceosversion] [-p] (-b|-i|-u|-U|-P)"
 ezjail_usage_config="Usage: ${ezjail_admin} config [-r run|norun] [-n newname] [-c cpuset] [-z zfs-datasets] [-f fib] [-i attach|detach|fsck] jailname"
@@ -449,7 +449,7 @@ case "$1" in
 create)
   # Clean variables, prevent pollution
   unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_parentfs ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
-  shift; while getopts :f:r:s:xbic:C:a:A: arg; do case ${arg} in
+  shift; while getopts :f:r:s:xbic:C:a:A:z: arg; do case ${arg} in
     x) ezjail_exists="YES";;
     r) ezjail_rootdir=${OPTARG};;
     f) ezjail_flavours=${OPTARG};;
