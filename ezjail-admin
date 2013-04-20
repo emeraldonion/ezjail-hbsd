@@ -179,6 +179,7 @@ writejailinfo () {
   echo export jail_${ezjail_safename}_zfs_datasets=\"${ezjail_zfs_datasets}\"
   echo export jail_${ezjail_safename}_cpuset=\"${ezjail_cpuset}\"
   echo export jail_${ezjail_safename}_fib=\"${ezjail_fib}\"
+  echo export jail_${ezjail_safename}_parentzfs=\"${ezjail_parentzfs}\"
   echo export jail_${ezjail_safename}_parameters=\"${ezjail_parameters}\"
   echo export jail_${ezjail_safename}_post_start_script=\"${ezjail_post_start_script}\"
 
@@ -228,8 +229,12 @@ fetchjailinfo () {
   eval ezjail_zfs_datasets=\"\$jail_${ezjail_safename}_zfs_datasets\"
   eval ezjail_cpuset=\"\$jail_${ezjail_safename}_cpuset\"
   eval ezjail_fib=\"\$jail_${ezjail_safename}_fib\"
+  eval ezjail_parentzfs=\"\$jail_${ezjail_safename}_parentzfs\"
   eval ezjail_parameters=\"\$jail_${ezjail_safename}_parameters\"
   eval ezjail_post_start_script=\"\$jail_${ezjail_safename}_post_start_script\"
+
+  # Pre ezjail-3.3-jails do not have this set
+  : ${ezjail_parentzfs=${ezjail_jailzfs}}
 
   ezjail_softlink=${ezjail_jaildir}/`basename -- "${ezjail_rootdir}"`
   ezjail_devicelink="${ezjail_rootdir}.device"
@@ -449,7 +454,7 @@ case "$1" in
 ######################## ezjail-admin CREATE ########################
 create)
   # Clean variables, prevent pollution
-  unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_parentfs ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
+  unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_parentzfs ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
   shift; while getopts :f:r:s:xbic:C:a:A:z: arg; do case ${arg} in
     x) ezjail_exists="YES";;
     r) ezjail_rootdir=${OPTARG};;
@@ -462,7 +467,7 @@ create)
     i) : ${ezjail_imagetype="simple"};;
     s) ezjail_imagesize=${OPTARG};;
     z) ezjail_imagetype="zfs";
-       ezjail_parentfs=${OPTARG};;
+       ezjail_parentzfs=${OPTARG};;
     ?) exerr ${ezjail_usage_create};;
   esac; done; shift $(( ${OPTIND} - 1 ))
 
@@ -620,16 +625,16 @@ create)
       ezjail_device=${ezjail_imagedevice}
       ;;
     zfs)
-      : ${ezjail_parentfs=${ezjail_jailzfs}}
+      : ${ezjail_parentzfs=${ezjail_jailzfs}}
       if [ -z "${ezjail_exists}" ]; then
         [ "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="${ezjail_zfs_jail_properties} -o quota=${ezjail_imagesize}"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
 
-        check_for_zfs_exist "${ezjail_parentfs}" || exerr "Error: The parent zfs dataset does not exist.\n  Use 'zfs create -p ${ezjail_parentfs}' to create it."
+        check_for_zfs_exist "${ezjail_parentzfs}" || exerr "Error: The parent zfs dataset does not exist.\n  Use 'zfs create -p ${ezjail_parentzfs}' to create it."
 
-        /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_parentfs}/${ezjail_hostname}
+        /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_parentzfs}/${ezjail_hostname}
       else
-        check_for_zfs_exist "${ezjail_parentfs}/${ezjail_hostname}" || exerr "Error: The existing destination is not a ZFS filesystem."
+        check_for_zfs_exist "${ezjail_parentzfs}/${ezjail_hostname}" || exerr "Error: The existing destination is not a ZFS filesystem."
       fi
       ;;
 
@@ -661,8 +666,8 @@ create)
     if [ "${ezjail_imagetype}" = "zfs" -a "${ezjail_use_zfs}" = "YES" ]; then
       # create ZFS filesystem first when using ZFS
       /sbin/zfs snapshot ${ezjail_jailzfs}/newjail@_createnewjailtmp
-      /sbin/zfs send ${ezjail_jailzfs}/newjail@_createnewjailtmp | zfs receive -F ${ezjail_parentfs}/${ezjail_hostname}
-      /sbin/zfs destroy ${ezjail_parentfs}/${ezjail_hostname}@_createnewjailtmp
+      /sbin/zfs send ${ezjail_jailzfs}/newjail@_createnewjailtmp | zfs receive -F ${ezjail_parentzfs}/${ezjail_hostname}
+      /sbin/zfs destroy ${ezjail_parentzfs}/${ezjail_hostname}@_createnewjailtmp
       /sbin/zfs destroy ${ezjail_jailzfs}/newjail@_createnewjailtmp
     else
       mkdir -p "${ezjail_rootdir}" && cd "${ezjail_jailtemplate}" && find . | cpio -p -v "${ezjail_rootdir}" > /dev/null
@@ -839,7 +844,7 @@ delete)
      [ "${ezjail_image}" ] && rm -f "${ezjail_image}" "${ezjail_image%.img}.device"
     ;;
     zfs)
-      /sbin/zfs destroy -r ${ezjail_jailzfs}/${ezjail_hostname}
+      /sbin/zfs destroy -r ${ezjail_parentzfs}/${ezjail_hostname}
     ;;
     *)
       chflags -R noschg "${ezjail_rootdir}"
@@ -1429,7 +1434,7 @@ config)
     fi
 
     # rename the filesystem, remounting is done by ZFS
-    [ "${ezjail_imagetype}" = "zfs" ] && /sbin/zfs rename ${ezjail_jailzfs}/${ezjail_old_hostname} ${ezjail_jailzfs}/${ezjail_hostname} && /sbin/zfs set mountpoint=${ezjail_rootdir} ${ezjail_jailzfs}/${ezjail_hostname} && rmdir ${ezjail_old_rootdir}
+    [ "${ezjail_imagetype}" = "zfs" ] && /sbin/zfs rename ${ezjail_parentzfs}/${ezjail_old_hostname} ${ezjail_parentzfs}/${ezjail_hostname} && /sbin/zfs set mountpoint=${ezjail_rootdir} ${ezjail_parentzfs}/${ezjail_hostname} && rmdir ${ezjail_old_rootdir}
 
     # rename fstab
     rm -f "/etc/fstab.${ezjail_old_safename}"
