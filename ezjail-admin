@@ -625,7 +625,7 @@ create)
         [ "${ezjail_imagesize}" ] && ezjail_zfs_jail_properties="${ezjail_zfs_jail_properties} -o quota=${ezjail_imagesize}"
         [ -d "${ezjail_jaildir}/${ezjail_hostname}" ] && exerr "Error: Could not create jail root mount point ${ezjail_rootdir}"
 
-        check_for_zfs_exist "${ezjail_parentfs} || exerr "Error: The parent zfs dataset does not exist.\n  Use 'zfs create -p ${ezjail_parentfs}' to create it."
+        check_for_zfs_exist "${ezjail_parentfs}" || exerr "Error: The parent zfs dataset does not exist.\n  Use 'zfs create -p ${ezjail_parentfs}' to create it."
 
         /sbin/zfs create -o mountpoint=${ezjail_rootdir} ${ezjail_zfs_jail_properties} ${ezjail_parentfs}/${ezjail_hostname}
       else
