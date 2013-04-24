@@ -55,8 +55,13 @@
 # ezjail_use_zfs_for_jails="YES"
 
 # The name of the ZFS ezjail should create jails on, it will be mounted at the ezjail_jaildir
-
 # ezjail_jailzfs="tank/ezjail"
+
 # ADVANCED, be very careful!
 # ezjail_zfs_properties="-o compression=lzjb -o atime=off"
 # ezjail_zfs_jail_properties="-o dedup=on"
+
+# For auto snapshots this is the default policy to keep old snapshots. In each window there
+# will be guaranteed to be one or two snapshots only
+# If this variable is not set, no snapshots will be removed by ezjail-admin snapshot
+# ezjail_default_retention_policy="4x15m 3x1h 2x2h 4h 12h 6x1d 7x1w 11x4w 1000x1y"

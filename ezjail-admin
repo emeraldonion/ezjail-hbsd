@@ -181,6 +181,7 @@ writejailinfo () {
   echo export jail_${ezjail_safename}_parentzfs=\"${ezjail_parentzfs}\"
   echo export jail_${ezjail_safename}_parameters=\"${ezjail_parameters}\"
   echo export jail_${ezjail_safename}_post_start_script=\"${ezjail_post_start_script}\"
+  echo export jail_${ezjail_safename}_retention_policy=\"${ezjail_retention_policy}\"
 
   ) > "${ezjail_destconf}"
 
@@ -231,6 +232,7 @@ fetchjailinfo () {
   eval ezjail_parentzfs=\"\$jail_${ezjail_safename}_parentzfs\"
   eval ezjail_parameters=\"\$jail_${ezjail_safename}_parameters\"
   eval ezjail_post_start_script=\"\$jail_${ezjail_safename}_post_start_script\"
+  eval ezjail_retention_policy=\"\$jail_${ezjail_safename}_retention_policy\"
 
   # Pre ezjail-3.3-jails do not have this set
   : ${ezjail_parentzfs:=${ezjail_jailzfs}}
@@ -1242,7 +1244,7 @@ snapshot)
     [ "${ezjail_imagetype}" = "zfs" ] && ezjail_zfs_datasets="${ezjail_parentzfs}/${ezjail_hostname} ${ezjail_zfs_datasets}"
 
     # Use global retention policy, if none set
-    : ${ezjail_retention_policy=${ezjail_default_retention_policy}}
+    : ${ezjail_retention_policy:=${ezjail_default_retention_policy}}
 
     for ezjail_zfs in ${ezjail_zfs_datasets}; do
       check_for_zfs_exist ${ezjail_zfs} || continue
