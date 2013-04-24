@@ -1248,13 +1248,11 @@ snapshot)
       check_for_zfs_exist ${ezjail_zfs} || continue
       zfs_retention_policy=`/sbin/zfs get -H -o value ezjail:autosnap_retention ${ezjail_zfs}`
       [ "${zfs_retention_policy}" = "-" ] || ezjail_retention_policy="${zfs_retention_policy}"
-echo RP: ${ezjail_retention_policy}
       if [ -z "${ezjail_retention_policy}" ]; then
         /sbin/zfs snapshot ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
       else
         snap_list=`/sbin/zfs list -H -t snapshot -o name -S creation -r ${ezjail_zfs} | \
           grep ^${ezjail_zfs}@ez-autosnap- | cut -d '@' -f 2 | cut -d '-' -f 3`
-echo SN: ${snap_list}
         filteroldsnapshots ${snap_list}
       fi
     done
