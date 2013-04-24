@@ -8,6 +8,7 @@ ezjail_etc="${ezjail_prefix}/etc"
 ezjail_share="${ezjail_prefix}/share/ezjail"
 ezjail_examples="${ezjail_prefix}/share/examples/ezjail"
 ezjail_jailcfgs="${ezjail_etc}/ezjail"
+ezjail_snap_date_format="%Y%m%d%H%M"
 
 # read user config
 [ -f "${ezjail_etc}/ezjail.conf" ] && . "${ezjail_etc}/ezjail.conf"
@@ -40,7 +41,7 @@ ezjail_basesystem="base"
 case `uname -p` in amd64) ezjail_dirlist="${ezjail_dirlist} usr/lib32"; ezjail_basesystem="${ezjail_basesystem} lib32";; esac
 
 # Synopsis messages
-ezjail_usage_ezjailadmin="${ezjail_admin} v3.3\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|update] {params}"
+ezjail_usage_ezjailadmin="${ezjail_admin} v3.3\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|snapshot|update] {params}"
 ezjail_usage_install="Usage: ${ezjail_admin} install [-mMpPsS] [-h host] [-r release]"
 ezjail_usage_create="Usage: ${ezjail_admin} create [-xbi] [-f flavour] [-r jailroot] [-s size] [-c bde|eli|zfs] [-C args] [-a archive] [-z parentzfs] jailname jailip"
 ezjail_usage_delete="Usage: ${ezjail_admin} delete [-wf] jailname"
@@ -439,6 +440,70 @@ ensure_jailzfs() {
   # create the ezjail root zfs
   # Note, we can not use -p here, because the -o options are ignored
   /sbin/zfs create -o mountpoint=${ezjail_jaildir} ${ezjail_zfs_properties} ${ezjail_jailzfs}
+}
+
+# implement snapshot retentions
+filteroldsnapshots() {
+  local win repeat bottom in_window snap_id snap_del first_round_done max_diff
+  bottom=`date +%s`
+
+  unset snap_del first_round_done
+  snap_id=0
+  for win in ${ezjail_retention_policy}; do
+    # split repeat count from window chunk
+    case ${win} in *x*) repeat=${win%x*}; win=${win#*x};; *) repeat=1;; KEEP) return;; esac
+
+    # check for correct value
+    case ${win} in [0-9]);; [0-9]*[0-9mhdwy]);; *) echo "Unknown window length declaration ${win}"; return ;; esac
+
+    # values default to minutes
+    case ${win} in *h) m=60;; *d) m=1440;; *w) m=10080;; *y) m=*525600;; *) m=1;; esac
+    win=$((${win%[mhdwy]}*m*60))
+    max_diff=$(( 3 * win / 4 ))
+
+    # innerloop $repeats over windows
+    while [ $(( repeat-=1 )) -ge 0 ]; do
+      # Shift bottom of window
+      bottom=$(( ${bottom} - ${win} ))
+
+      # now loop over parameters
+      in_window=YES; while [ "${in_window}" ]; do
+
+        # When snap_id is required, pop one if possible
+        if [ "${snap_id}" -eq 0 -a $# -gt 0 ]; then
+          snap_id=`date -j -f ${ezjail_snap_date_format} $1 +%s`
+          shift
+        fi
+
+        # is next snapshot before this window? test next window
+        if [ ${snap_id} -lt ${bottom} ]; then
+          [ "${first_round_done}" ] || echo /sbin/zfs snapshot -r ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
+          [ "${first_round_done}" ] || /sbin/zfs snapshot -r ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
+
+          # Zero marks end of snaps list
+          [ "${snap_id}" -eq 0 ] && return
+
+          unset snap_del in_window
+        else
+          if [ "${snap_del}" -a $(( snap_del - snap_id )) -lt ${max_diff} ]; then
+             echo /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+             /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+          fi
+          snap_del="${snap_id}"
+          snap_id=0
+        fi
+        first_round_done="YES"
+
+      done
+    done
+  done
+
+  # if out of windows, default to delete the remainder of snaps
+  for snap_del in ${snap_id} $*; do
+    echo /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+    /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+  done
+
 }
 
 #############################
@@ -1156,7 +1221,47 @@ console)
 
   exec ${_setfib} jexec ${ezjail_id} ${ezjail_default_execute}
   ;;
-######################## ezjail-admin ARCHIVE ########################
+######################## ezjail-admin SNAPSHOT ########################
+snapshot)
+  shift
+  if [ $# -eq 0 ]; then
+    cd ${ezjail_jailcfgs} && ezjail_list=`ls -A`
+  else
+    ezjail_list=$*
+  fi
+
+  for ezjail in ${ezjail_list}; do
+    fetchjailinfo ${ezjail%.norun}
+
+    # Check for existence of jail in our records
+    [ "${ezjail_config}" ] || exerr "Error: Nothing known about jail ${ezjail_name}."
+
+    # Snapshots only work with zfs jails
+    [ "${ezjail_imagetype}" = "zfs" -o -n "${ezjail_zfs_datasets}" ] || continue
+
+    [ "${ezjail_imagetype}" = "zfs" ] && ezjail_zfs_datasets="${ezjail_parentzfs}/${ezjail_hostname} ${ezjail_zfs_datasets}"
+
+    # Use global retention policy, if none set
+    : ${ezjail_retention_policy=${ezjail_default_retention_policy}}
+
+    for ezjail_zfs in ${ezjail_zfs_datasets}; do
+      check_for_zfs_exist ${ezjail_zfs} || continue
+      zfs_retention_policy=`/sbin/zfs get -H -o value ezjail:autosnap_retention ${ezjail_zfs}`
+      [ "${zfs_retention_policy}" = "-" ] || ezjail_retention_policy="${zfs_retention_policy}"
+echo RP: ${ezjail_retention_policy}
+      if [ -z "${ezjail_retention_policy}" ]; then
+        /sbin/zfs snapshot ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
+      else
+        snap_list=`/sbin/zfs list -H -t snapshot -o name -S creation -r ${ezjail_zfs} | \
+          grep ^${ezjail_zfs}@ez-autosnap- | cut -d '@' -f 2 | cut -d '-' -f 3`
+echo SN: ${snap_list}
+        filteroldsnapshots ${snap_list}
+      fi
+    done
+
+  done
+;;
+ ######################## ezjail-admin ARCHIVE ########################
 archive)
   # Clean variables, prevent pollution
   unset ezjail_archive ezjail_archive_tag ezjail_force ezjail_archivealljails ezjail_addfiles
