@@ -105,7 +105,7 @@ do_cmd()
 
   # Configure settings that need to be done after the jail has been started
   if [ "${action%crypto}" = "start" -o "${action}" = "restart" ]; then
-    for ezjail in ${ezjail_list}; do
+    for ezjail in ${ezjail_pass}; do
       ezjail_safename=`echo -n "${ezjail}" | tr -c '[:alnum:]' _`
       # Get the JID of the jail
       [ -f "/var/run/jail_${ezjail_safename}.id" ] && ezjail_id=`cat /var/run/jail_${ezjail_safename}.id` || return
