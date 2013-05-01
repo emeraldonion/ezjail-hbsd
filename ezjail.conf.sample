@@ -64,4 +64,7 @@
 # For auto snapshots this is the default policy to keep old snapshots. In each window there
 # will be guaranteed to be one or two snapshots only
 # If this variable is not set, no snapshots will be removed by ezjail-admin snapshot
+
+# Example policy for a database jail with rollbackable snapshots with at least four snapshots
+# in the last hour. Beware of the load caused by destroying snapshots.
 # ezjail_default_retention_policy="4x15m 3x1h 2x2h 4h 12h 6x1d 7x1w 11x4w 1000x1y"

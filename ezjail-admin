@@ -1311,7 +1311,7 @@ archive)
     if [ "${ezjail_imagetype}" -a "${ezjail_imagetype}" != "zfs" -a -z "${ezjail_attached}" ]; then
       if [ "${ezjail_attachblocking}" ]; then
         echo "Warning: Jail ${ezjail_name} is an image jail and can not be attached automatically."
-        echo "         Use '${ezjail_admin} config -i attach ${ezjail_name}' to attach it first."
+        echo "  Use '${ezjail_admin} config -i attach ${ezjail_name}' to attach it first."
         continue
       fi
       mount_images
@@ -1361,7 +1361,7 @@ archive)
     [ "${ezjail_imagesize}" ] && detach_images keep
 
     # An error on a jail not running is bad
-    [ ${ezjail_paxresult} -eq 0 -o "${ezjail_force}" ] || echo "Warning: Archiving jail ${ezjail_name} was not completely successful.\n  Please refer to the output above for problems the archiving tool encountered.\n  You may ignore reports concerning setting access and modification times.\n  You might want to check and remove ${ezjail_archive}."
+    [ ${ezjail_paxresult} -eq 0 -o "${ezjail_force}" ] || echo -n "Warning: Archiving jail ${ezjail_name} was not completely successful.\n  Please refer to the output above for problems the archiving tool encountered.\n  You may ignore reports concerning setting access and modification times.\n  You might want to check and remove ${ezjail_archive}."
 
     # When archiving a running jail, some errors might occur
     [ ${ezjail_paxresult} -eq 0 ] || echo "Warning: Archiving jail ${ezjail_name} was not completely successful. For a running jail this is not unusual."
