@@ -446,7 +446,7 @@ ensure_jailzfs() {
 
 # implement snapshot retentions
 filteroldsnapshots() {
-  local win repeat bottom in_window snap_id snap_del first_round_done max_diff
+  local win repeat bottom in_window snap_id snap_del snap_first first_round_done max_diff
   bottom=`date +%s`
 
   unset snap_del first_round_done
@@ -461,12 +461,12 @@ filteroldsnapshots() {
     # values default to minutes
     case ${win} in *h) m=60;; *d) m=1440;; *w) m=10080;; *y) m=*525600;; *) m=1;; esac
     win=$((${win%[mhdwy]}*m*60))
-    max_diff=$(( 3 * win / 4 ))
 
     # innerloop $repeats over windows
     while [ $(( repeat-=1 )) -ge 0 ]; do
       # Shift bottom of window
       bottom=$(( ${bottom} - ${win} ))
+      unset snap_first
 
       # now loop over parameters
       in_window=YES; while [ "${in_window}" ]; do
@@ -482,14 +482,25 @@ filteroldsnapshots() {
           [ "${first_round_done}" ] || echo /sbin/zfs snapshot -r ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
           [ "${first_round_done}" ] || /sbin/zfs snapshot -r ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
 
+          # we remembered the first snapshot in window
+          # only keep it, if it is newer than the oldest by more than half the window size
+          if [ "${snap_first}" -a "${snap_del}" -a $(( snap_del - snap_first )) -lt $(( win / 2 )) ]; then
+             echo /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_first} +${ezjail_snap_date_format}`
+             /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_first} +${ezjail_snap_date_format}`
+          fi
+
           # Zero marks end of snaps list
           [ "${snap_id}" -eq 0 ] && return
 
           unset snap_del in_window
         else
-          if [ "${snap_del}" -a $(( snap_del - snap_id )) -lt ${max_diff} ]; then
-             echo /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
-             /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+          if [ "${snap_del}" ]; then
+            if [ "${snap_first}" ]; then
+              echo /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+              /sbin/zfs destroy -r ${ezjail_zfs}@ez-autosnap-`date -j -f %s ${snap_del} +${ezjail_snap_date_format}`
+            else
+              snap_first="${snap_del}"
+            fi
           fi
           snap_del="${snap_id}"
           snap_id=0
