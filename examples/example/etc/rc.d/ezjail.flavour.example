@@ -54,7 +54,7 @@ flavour_setup() {
 # Install all packages previously put to /pkg
 # Remove package files afterwards
 
-[ -d /pkg ] && PACKAGESITE=file:// pkg_add -r /pkg/*
+[ -d /pkg ] && cd /pkg && pkg_add /pkg/*
 rm -rf /pkg
 
 # Postinstall
