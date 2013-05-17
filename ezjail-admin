@@ -992,8 +992,12 @@ setup|update)
 
     # If ran from cron be kind to freebsds update servers and sleep first
     [ -z "$TERM" -o "$TERM" = "dumb" ] && ezjail_urgency="cron" || ezjail_urgency="fetch"
-    [ "${ezjail_use_zfs}" = "YES" ] && zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
+    if [ "${ezjail_use_zfs}" = "YES" ];
+        zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
+        zfs snapshot ${ezjail_jailzfs}/newjail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
+    fi
     env PAGER=/bin/cat freebsd-update -b ${ezjail_jailbase} ${ezjail_urgency} install
+    env PAGER=/bin/cat freebsd-update -b ${ezjail_jailtemplate} ${ezjail_urgency} install
   elif [ "${ezjail_installaction}" = "freebsd-upgrade" ]; then
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot update a base jail until it is created.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
 
@@ -1007,9 +1011,11 @@ setup|update)
     ezjail_osversion_target="`uname -r`"
 
     # Finally run freebsd-update to upgrade our basejail
-    env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${ezjail_jailbase} -r ${ezjail_osversion_target} upgrade
-    while [ $? -eq 0 ]; do
-        env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${ezjail_jailbase} -r ${ezjail_osversion_target} install
+    for DESTDIR in ${ezjail_jailbase} ${ezjail_jailtemplate}; do
+      env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} upgrade
+      while [ $? -eq 0 ]; do
+        env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} install
+      done
     done
 
     # Here we should write the file with the new osversion in case of success
