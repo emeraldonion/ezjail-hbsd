@@ -1181,8 +1181,11 @@ install)
     fi
   done
 
-  # Split basejail and newjail
-  [ "${ezjail_basesystem}" ] && ezjail_splitworld
+  # Update to current patch level, split basejail and newjail
+  if [ "${ezjail_basesystem}" ]; then
+    freebsd-update -b "${DESTDIR}" fetch install
+    ezjail_splitworld
+  fi
 
   # Fill ports, if requested
   [ "${ezjail_installports}" ] && ezjail_updateports
