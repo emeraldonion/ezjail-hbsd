@@ -992,7 +992,7 @@ setup|update)
 
     # If ran from cron be kind to freebsds update servers and sleep first
     [ -z "$TERM" -o "$TERM" = "dumb" ] && ezjail_urgency="cron" || ezjail_urgency="fetch"
-    if [ "${ezjail_use_zfs}" = "YES" ];
+    if [ "${ezjail_use_zfs}" = "YES" ]; then
         zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
         zfs snapshot ${ezjail_jailzfs}/newjail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
     fi
@@ -1089,6 +1089,7 @@ install)
     # ftp servers normally wont provide non-RELEASE-builds
     if [ "${ezjail_proto}" != "file" ]; then
       case ${ezjail_release} in *-STABLE) ezjail_release="${ezjail_release%-STABLE}-RELEASE";; esac
+      case ${ezjail_release} in *-RELEASE-p*) ezjail_release=${ezjail_release%-p*};; esac
       if [ "${ezjail_release%-RELEASE}" = "${ezjail_release}" ]; then
         echo "Your system is ${ezjail_release}. Normally FTP-servers don't provide non-RELEASE-builds."
         [ ${ezjail_release_major} -ge 9 ] && ezjail_installarch="${ezjail_installplatform}/${ezjail_installarch}"
