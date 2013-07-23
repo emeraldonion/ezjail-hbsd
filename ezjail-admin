@@ -1008,7 +1008,7 @@ setup|update)
 
     # Make the host systems os version our target version
     # Users can override this by setting the UNAME_r environment variable
-    ezjail_osversion_target="`uname -r`"
+    ezjail_osversion_target="`uname -r | sed -E 's,-p[0-9]+,,' | sed -E 's,-SECURITY,-RELEASE,'`" 
 
     # Finally run freebsd-update to upgrade our basejail
     for DESTDIR in ${ezjail_jailbase} ${ezjail_jailtemplate}; do
