@@ -1,4 +1,4 @@
-.Dd January 15, 2011
+.Dd August 01, 2013
 .Dt EZJAIL-ADMIN 8 USD
 .Os FreeBSD
 .Sh NAME
@@ -28,7 +28,7 @@
 .Nm
 .Cm list
 .Nm
-.Cm start | stop | restart | cryptostart Ar jailname...
+.Cm start | stop | restart | startcrypto | stopcrypto Ar jailname...
 .Nm
 .Cm config
 .Op Fl r Ar run | norun
@@ -392,7 +392,7 @@ If present, the third letter,
 means that the jail is not automatically started.
 .Pp
 The following columns are the JID (when it is running), the IP addresses, the name and the full path directory name of the jail.
-.Ss Nm Cm start | restart | stop | startcrypto Op Ar jailname ...
+.Ss Nm Cm start | restart | stop | startcrypto | stopcrypto Op Ar jailname ...
 .Pp
 This is a shortcut to the
 .Xr rc 8
