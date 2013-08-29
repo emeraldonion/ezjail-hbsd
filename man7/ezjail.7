@@ -130,12 +130,7 @@ There are two advantages to image jails. The amount of disk space
 allocated to the jail is limited, while normal jails have no bound on
 the amount of disk space they use. On the other hand, the space
 dedicated to the jail is no longer available to the host, even if the
-jail doesn't use all its allocated space. In addition, image jails
-contain a full copy of the basejail. This makes them portable between
-hosts running the same FreeBSD version as the image was created with.
-Of course, the jail now needs to be updated independently from all
-other jails, and there is no longer any sharing of common files
-between the jails.
+jail doesn't use all its allocated space.
 .Pp
 Image jails may also be encrypted using
 .Xr bde 4
