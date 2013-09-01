@@ -1584,6 +1584,7 @@ config)
   case "${ezjail_setrunnable}" in
     run)   [ "${ezjail_config}" = "${ezjail_config%.norun}" ] || mv "${ezjail_config}" "${ezjail_config%.norun}";;
     norun) [ "${ezjail_config}" = "${ezjail_config%.norun}" ] && mv "${ezjail_config}" "${ezjail_config}.norun";;
+    test)  [ "${ezjail_config}" = "${ezjail_config%.norun}" ] && echo "Jail ${ezjail_name} is runnable" || echo "Jail ${ezjail_name} is not runnable";;
   esac
 
   [ "${ezjail_imageaction}" -a -z "${ezjail_image}" ] && exerr "Error: Jail ${ezjail_name} not an image jail."
