@@ -308,6 +308,7 @@ ezjail_splitworld() {
   # /etc/make.conf.
   if [ -f "${ezjail_examples}/example/etc/make.conf" -a ! -f "${ezjail_jailtemplate}/etc/make.conf" ]; then
     cp -p "${ezjail_examples}/example/etc/make.conf" "${ezjail_jailtemplate}/etc/"
+    mkdir -p ${ezjail_jailtemplate}/var/ports/packages ${ezjail_jailtemplate}/var/ports/distfiles
     echo "Note: a non-standard /etc/make.conf was copied to the template jail in order to get the ports collection running inside jails."
   fi
 
