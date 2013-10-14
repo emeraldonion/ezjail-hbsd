@@ -1455,7 +1455,7 @@ restore)
     ezjail_config=`mktemp /tmp/ezjail.prop.XXXXXXXX`
     [ $? -ne 0 ] && exerr "Error: Can't create temporary file."
     pax -rzn -s:${ezjail_nameprop}:${ezjail_config}: -f ${ezjail_fromarchive} ${ezjail_nameprop}
-    fetchjailinfo ${ezjail_safename} ${ezjail_config}
+    fetchjailinfo ${ezjail_safename:-${ezjail_nameprop_safename}} ${ezjail_config}
 
     # Now all parameters are here, invoke ezjail-admin create
     [ "${ezjail_rootdir}" -a "${ezjail_ips}" -a "${ezjail_hostname}" ] || exerr "Error: Archive does not contain a valid ezjail properties file.\n  Some jails properties are missing."
