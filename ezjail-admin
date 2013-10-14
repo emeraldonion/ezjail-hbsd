@@ -1300,7 +1300,7 @@ archive)
   [ $# -lt 1 -a -z "${ezjail_archivealljails}" ] && exerr ${ezjail_usage_archive}
 
   # Ensure that archive directory is there
-  [ "${ezjail_archive}" = "-" ] || mkdir -p "${ezjail_archivedir}" || exerr "Error: Can not create archive directory ${ezjail_archivedir}."
+  [ "${ezjail_archive}" = "-" ] || mkdir -p "${ezjail_archivedir}" || exerr "Error: Can not create archive directory ${ezjail_archivedir}."
 
   # Will not backup more than one jail per archive
   [ "${ezjail_archive}" -a "${ezjail_archivealljails}" ] && exerr "Error: Must not specify an archive location for multiple archives.\n  Can not archive multiple jails into one archive."
