@@ -261,7 +261,7 @@ fetchjailinfo () {
   fi
 
   [ -f "/var/run/jail_${ezjail_safename}.id" ] && ezjail_id=`cat /var/run/jail_${ezjail_safename}.id` || return
-  jls | grep -q -E "^ +${ezjail_id} " || unset ezjail_id
+  jls | grep -q -E "^ *${ezjail_id} " || unset ezjail_id
 }
 
 # fill the base jail - this function is used by install and update
