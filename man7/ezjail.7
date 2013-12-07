@@ -1,4 +1,4 @@
-.Dd January 15, 2011
+.Dd December 5, 2013
 .Dt EZJAIL 7 USD
 .Os
 .Sh NAME
@@ -145,7 +145,7 @@ filesystem. See
 .Sx Jail Creation Examples
 for details.
 .Pp
-Also, ezjail can be configured to install its basejail and the accompaning
+Also, ezjail can be configured to install its basejail and the accompanying
 template for all new jails into its own filesystem. Set the
 .Dq Li $ezjail_use_zfs
 variable in your
@@ -348,7 +348,7 @@ configuration, creating classes of jails for development or testing
 favourite web development framework), pre-creating local users, and so
 on.
 .Ss Updating the Base Jail
-We already mentionned how easy it is to update jails, since only one
+We already mentioned how easy it is to update jails, since only one
 copy needs to be updated. Ezjail only handles updating the base
 system; updating the ports is left to the administrator (but see
 .Dq Li ports-mgmt/jailaudit
@@ -361,7 +361,7 @@ binary packages. If a base jail already exists, the
 command installs the world in a temporary directory before moving it
 to the basejail, thus leaving intact all installed libraries. After
 making sure all software running in the jails is linked with the new
-librairies, you may want to remove the old library versions. It is
+libraries, you may want to remove the old library versions. It is
 often a good idea to update the jails when a new kernel is installed
 in the host, using the same sources.
 .Ss Starting Jails
@@ -433,7 +433,7 @@ knobs for allowing a jail to access raw sockets, see the
 man page for details.
 .Pp
 Once your jail has network access, then all your normal application
-install functions are availabe, right from the jails console. In
+install functions are available, right from the jails console. In
 particular, if the ports collection was installed, it can be used as
 if from the host system. A modified
 .Pa make.conf
@@ -458,7 +458,7 @@ in
 .Pa rc.conf .
 It is possible to set this variable to
 .Dq Li NO
-if the administrator wants to temporarily ezjail, or if she doesn't
+if the administrator wants to temporarily disable ezjail, or if she doesn't
 want the jails to be automatically started on boot.
 .Pp
 The ezjail system may be reset to a pristine state by removing all its
@@ -618,7 +618,7 @@ Create a new jail, placing it in directory
 instead of deriving the directory name of the jail from its host name.
 The jail will be created with the flavour
 .Ar example .
-This jail will be given two IP addressses; this is possible only since
+This jail will be given two IP addresses; this is possible only since
 FreeBSD 7.2.
 .It Nm Cm create Fl i Fl s Ar 600M sandbox2 10.0.10.4
 This creates a new file-based jail having a file size of 600 megabytes

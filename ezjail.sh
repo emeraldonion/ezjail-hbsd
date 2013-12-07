@@ -89,7 +89,7 @@ do_cmd()
     # Cannot auto mount blocking jails without interrupting boot process
     [ "${ezjail_fromrc}" -a "${action}" = "start" -a "${ezjail_blocking}" ] && echo -n " ...skipping blocking jail ${ezjail}" && continue
 
-    # Explicitely do only run blocking crypto jails when *crypto is requested
+    # Explicitly do only run blocking crypto jails when *crypto is requested
     [ "${action%crypto}" = "${action}" -o "${ezjail_blocking}" ] || continue
 
     # Try to attach (crypto) devices

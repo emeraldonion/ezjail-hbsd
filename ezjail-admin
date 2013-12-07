@@ -434,7 +434,7 @@ ensure_jailzfs() {
   _zfs_status=`/sbin/zfs list -H -o name ${ezjail_jailzfs} 2> /dev/null`
   [ "${_zfs_status}" = "${ezjail_jailzfs}" ] && return
 
-  # if a directoy already exists in that place, make sure it is empty, else bump user
+  # if a directory already exists in that place, make sure it is empty, else bump user
   [ -d "${ezjail_jaildir}" -a -n "`ls -A ${ezjail_jaildir}`" ] && exerr "Error: Can not create zfs at ${ezjail_jaildir}.\n  There is a non-empty directory in the way."
 
   # create all parent file systems if necessary

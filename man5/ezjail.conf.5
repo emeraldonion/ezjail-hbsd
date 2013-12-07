@@ -1,4 +1,4 @@
-.Dd January 15, 2011
+.Dd December 5, 2013
 .Dt EZJAIL.CONF 5 USD
 .Os FreeBSD
 .Sh NAME
@@ -157,7 +157,7 @@ Default:
 .It ezjail_imagetype (one of simple, bde, eli, zfs)
 Type of jail to create when creating a jail with the
 .Fl i
-flag without specifying the type explicitely.
+flag without specifying the type explicitly.
 .br
 Default:
 .Em simple
@@ -165,7 +165,7 @@ Default:
 .Sh ZFS OPTIONS
 .Bl -tag -width option
 .It ezjail_use_zfs (bool)
-Set to YES, if ezjail should manage basejail and newjail in a seperate
+Set to YES, if ezjail should manage basejail and newjail in a separate
 ZFS-datasets.
 .br
 Default:
@@ -184,7 +184,7 @@ Default:
 The name of the parent ZFS-dataset which ezjail will use to create
 jails on. It will be mounted in
 .Em ezjail_jaildir .
-Setting this will automaticly enable ezjail managing jails in seperate
+Setting this will automatically enable ezjail managing jails in separate
 ZFS-datasets.
 .br
 Default:
