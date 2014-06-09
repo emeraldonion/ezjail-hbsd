@@ -144,6 +144,7 @@ start_stop_jail_by_script () {
   shift
   for ezjail; do
     fetchjailinfo ${ezjail}
+    case ${ezjail_config} in *.norun) continue;; esac
     [ ${ezjail_success_check} "${ezjail_id}" ] || exerr "Error: Could not ${ezjail_action} $@.\n  You need to ${ezjail_action} it by hand."
   done
 }
