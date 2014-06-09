@@ -1627,7 +1627,7 @@ config)
 ######################## ezjail-admin TROUBLESHOOT ########################
 troubleshoot)
 
-  # TOOD:
+  # XXX TOOD:
   # Start with some simple tests, check for basejail
   # Check if we are ourself jailed
   # Check if all IPv4 addresses are either configured already or in
