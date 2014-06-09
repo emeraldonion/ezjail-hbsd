@@ -1635,6 +1635,7 @@ troubleshoot)
   # Check for duplicate non unique IPv4 addresses
   # Check if all necessary file systems for zfs jails are mounted
   # For zfs jails check, if zpool is full
+  # Check if all mount points inside the jails are there
 
   shift
   [ $# -gt 0 ] || && cd ${ezjail_jailcfgs} && set - `ls -A`
