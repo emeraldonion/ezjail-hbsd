@@ -923,7 +923,14 @@ delete)
      [ "${ezjail_image}" ] && rm -f "${ezjail_image}" "${ezjail_image%.img}.device"
     ;;
     zfs)
-      /sbin/zfs destroy -r ${ezjail_parentzfs}/${ezjail_hostname}
+      if ! /sbin/zfs destroy -r ${ezjail_parentzfs}/${ezjail_hostname}; then
+        [ "${ezjail_forcestop}" ] || exerr "Error: Could not destroy file system ${ezjail_parentzfs}/${ezjail_hostname} for jail ${ezjail_name}."
+        echo "Warning: Could not destroy file system ${ezjail_parentzfs}/${ezjail_hostname} for jail ${ezjail_name}."
+        echo "  Sleeping 5 seconds before retrying forcefully."
+        sleep 5
+        /sbin/zfs destroy -rf ${ezjail_parentzfs}/${ezjail_hostname} || exerr "Error: Failed to destroy file system."
+        echo "Success."
+      fi
     ;;
     *)
       chflags -R noschg "${ezjail_rootdir}"
