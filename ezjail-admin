@@ -1638,7 +1638,7 @@ troubleshoot)
   # Check if all mount points inside the jails are there
 
   shift
-  [ $# -gt 0 ] || && cd ${ezjail_jailcfgs} && set - `ls -A`
+  [ $# -gt 0 ] && cd ${ezjail_jailcfgs} && set - `ls -A`
 
   for ezjail; do
     fetchjailinfo ${ezjail%.norun}
