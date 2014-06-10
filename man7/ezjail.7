@@ -409,6 +409,37 @@ rc.d/ezjail can be used to start and stop jails by prepending
 Refer to
 .Xr rc 8
 for details.
+.Ss Snapshots and retention policies
+Jails residing in their own zfs and their corresponding zfs data sets can be
+automatically snapshot by the
+.Cm ezjail-admin snapshot
+subcommand. Taking snapshots of all jails before a major update is considered
+best practise. However, when taking snapshots regularly, the amount of disc
+space used can be considerable.
+.Pp
+Therefore ezjail allows you to set retention policies that describe how many
+of your snapshots you want to keep for one or all jails or a particular zfs. See
+the description of the snapshot command in
+.Xr ezjail-admin 5
+for details.
+.Pp
+A retention policy consists of one or multiple windows for which ezjail guarantees
+to keep at least one and at most two snapshots. A simple example:
+.D1 $ezjail_default_retention_policy="1d 2w 1y"
+will ensure ONE snapshot for the last day, for the last two weeks before that day and
+then for one snapshot in the year before the two-week window. Valid multipliers are
+(m)inutes, (h)ours, (d)ays, (w)eeks and (y)ears.
+.Pp
+Windows can be repeated by prepending them with a number and the letter x:
+.D1 $ezjail_test_com_retention_policy="24x1h 6x1d 3x1w 11x4w KEEP"
+will set the retention policy for jail test.com to keep hourly snapshots for one
+day, then daily snapshots for the rest of the week, weekly snapshots for the rest of
+the month, monthly snapshots for the rest of the year.
+.Pp
+The magic keyword KEEP at the end of the list will make ezjail not delete snapshots
+older than the oldest window. It is your responsibility to keep the list in an order
+that makes keeping snapshots possible, i.e. not placing one-hour-windows after
+one-year-windows.
 .Ss Remarks & Tips
 Jails can be either accessed from the network, for instance by using
 .Xr ssh 1 ,

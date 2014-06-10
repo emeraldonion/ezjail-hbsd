@@ -54,6 +54,9 @@
 .Op Fl d Ar archivedir
 .Ar archive | jailname...
 .Nm
+.Cm snapshot
+.Ar [jailname...]
+.Nm
 .Cm update
 .Op Fl s Ar sourcetree | sourceosversion
 .Op Fl p
@@ -518,6 +521,30 @@ where it was archived. Be default,
 will refuse to restore an archive if the archived host system's hostname,
 its FreeBSD version or CPU architecture do not match the current host.
 .El
+.Ss Nm Cm snapshot [jailname...]
+Takes zfs snapshots of some or all (zfs) ezjails and their zfs datasets and
+optionally destroys older snapshots according to a configured retention
+policy.
+.Pp
+The zfs snapshots will be named @ez-autosnap- with the date appended in format
+“%Y%m%d%H%M”. List all auto snapshots with
+.Dq Li /sbin/zfs list -H -t snapshot | grep @ez-autosnap- .
+.Pp
+You can set (and override in that order) the retention policy globally in your
+.Dq Li $ezjail_default_retention_policy
+.Xr ezjail.conf 5
+variable, set them per jail in its config file with their
+.Dq Li $ezjail_retention_policy 
+variable or set a User property with the name
+.Dq Li ezjail:autosnap_retention 
+on the respective file systems.
+.Pp
+The policy is described by a pattern of space separated
+.Dq Li repeat x window
+entries with the algorithm guaranteeing at least one and at most two snapshots
+in each of the windows, if mathematically possible. See
+.Xr ezjail 7
+for details.
 .Ss Nm Cm update
 Updates ezjail's basejail, or in the
 .Fl b
