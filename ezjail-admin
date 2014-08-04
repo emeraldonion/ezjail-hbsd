@@ -274,7 +274,7 @@ ezjail_splitworld() {
   if [ "${ezjail_use_zfs}" = "YES" ]; then
     ensure_jailzfs
     /sbin/zfs create ${ezjail_jailzfs}/basejail
-    /sbin/zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
+    /sbin/zfs snapshot ${ezjail_jailzfs}/basejail@`date +"%C%y%m%d_%H:%M:%S"`
   fi
 
   # Remove schg flags from old basejail binaries. The flags
@@ -1003,8 +1003,8 @@ setup|update)
     # If ran from cron be kind to freebsds update servers and sleep first
     [ -z "$TERM" -o "$TERM" = "dumb" ] && ezjail_urgency="cron" || ezjail_urgency="fetch"
     if [ "${ezjail_use_zfs}" = "YES" ]; then
-        zfs snapshot ${ezjail_jailzfs}/basejail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
-        zfs snapshot ${ezjail_jailzfs}/newjail@`date -v -7d +"%C%y%m%d_%H:%M:%S"`
+        zfs snapshot ${ezjail_jailzfs}/basejail@`date +"%C%y%m%d_%H:%M:%S"`
+        zfs snapshot ${ezjail_jailzfs}/newjail@`date +"%C%y%m%d_%H:%M:%S"`
     fi
     env PAGER=/bin/cat freebsd-update -b ${ezjail_jailbase} ${ezjail_urgency} install
     env PAGER=/bin/cat freebsd-update -b ${ezjail_jailtemplate} ${ezjail_urgency} install
