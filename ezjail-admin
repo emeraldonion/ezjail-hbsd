@@ -1286,7 +1286,7 @@ freeze)
   # TODO: This assumes no files have been deleted from when the jail was initially created. Safe assumption for now.
   # TODO: This assumes no files have been renamed from when the jail was initially created. Not so sure.
   /sbin/zfs diff -H "${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_" "${ezjail_parentzfs}/${ezjail_hostname}" | \
-    grep -E "^(M|+)" | cut -f 2 | cpio -d -m -p -v "${ezjail_flavours_dir}/${ezjail_flavour}"
+    grep -E "^[M+]" | cut -f 2 | cpio -d -m -p -v "${ezjail_flavours_dir}/${ezjail_flavour}"
 
 ;;
 ######################## ezjail-admin SNAPSHOT ########################
