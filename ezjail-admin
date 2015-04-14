@@ -1150,8 +1150,12 @@ install)
       # The easy case means, that a local distribution directory has been specified.
 
       if [ ${ezjail_release_major} -ge 9 ]; then
-        [ -r "${ezjail_disturi}/${pkg}.txz" ] || exerr "Error: Can not access package file ${ezjail_disturi}/${pkg}.txz"
-        xzdec ${ezjail_disturi}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+        if [ -r "${ezjail_disturi}/${pkg}.txz" ]; then
+          xzdec ${ezjail_disturi}/${pkg}.txz | tar --unlink -xpJf - -C ${DESTDIR}
+        else
+          [ ${pkg} = "lib32" ] || exerr "Error: Can not access package file ${ezjail_disturi}/${pkg}.txz"
+          echo "Warning: Can not access package file ${ezjail_disturi}/${pkg}.txz, ignored for auto added lib32."
+        fi
       else
         ezjail_makeabsolute ezjail_disturi
         cd "${ezjail_disturi}/${pkg}" || exerr "Error: Could not cd to ${ezjail_disturi}/${pkg}."
