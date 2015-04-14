@@ -41,7 +41,7 @@ ezjail_basesystem="base"
 case `uname -p` in amd64) ezjail_dirlist="${ezjail_dirlist} usr/lib32"; ezjail_basesystem="${ezjail_basesystem} lib32";; esac
 
 # Synopsis messages
-ezjail_usage_ezjailadmin="${ezjail_admin} v3.4.2\nUsage: ${ezjail_admin} [archive|config|console|create|delete|install|list|restore|snapshot|troubleshoot|update] {params}"
+ezjail_usage_ezjailadmin="${ezjail_admin} v3.4.2\nUsage: ${ezjail_admin} [archive|config|console|create|delete|freeze|install|list|restore|snapshot|troubleshoot|update] {params}"
 ezjail_usage_install="Usage: ${ezjail_admin} install [-mMpPsS] [-h host] [-r release]"
 ezjail_usage_create="Usage: ${ezjail_admin} create [-xbi] [-f flavour] [-r jailroot] [-s size] [-c bde|eli|zfs] [-C args] [-a archive] [-z parentzfs] jailname jailip"
 ezjail_usage_delete="Usage: ${ezjail_admin} delete [-wf] jailname"
@@ -50,6 +50,7 @@ ezjail_usage_config="Usage: ${ezjail_admin} config [-r run|norun] [-n newname] [
 ezjail_usage_console="Usage: ${ezjail_admin} console [-f] [-e command] jailname"
 ezjail_usage_archive="Usage: ${ezjail_admin} archive [-Af] [-a archive] [-d archivedir] jailname [jailname...]"
 ezjail_usage_restore="Usage: ${ezjail_admin} restore [-f] [-d archivedir] (archive|jailname)..."
+ezjail_usage_freeze="Usage: ${ezjail_admin} freeze jailname newflavour"
 ezjail_usage_troubleshoot="Usage: ${ezjail_admin} troubleshoot [jailname...]"
 ezjail_usage_list="Usage: ${ezjail_admin} list"
 
@@ -534,7 +535,7 @@ case "$1" in
 create)
   # Clean variables, prevent pollution
   unset ezjail_rootdir ezjail_flavours ezjail_softlink ezjail_image ezjail_imagetype ezjail_imageparams ezjail_imagesize ezjail_parentzfs ezjail_device ezjail_devicelink ezjail_config ezjail_attachparams ezjail_exists ezjail_attachblocking ezjail_forceblocking ezjail_sourcedevice ezjail_rootdirempty ezjail_fromarchive ezjail_fromarchive_config
-  shift; while getopts :f:r:s:xbic:C:a:A:z: arg; do case ${arg} in
+  shift; while getopts :f:r:s:xbkic:C:a:A:z: arg; do case ${arg} in
     x) ezjail_exists="YES";;
     r) ezjail_rootdir=${OPTARG};;
     f) ezjail_flavours=${OPTARG};;
@@ -547,6 +548,7 @@ create)
     s) ezjail_imagesize=${OPTARG};;
     z) ezjail_imagetype="zfs";
        ezjail_parentzfs=${OPTARG};;
+    k) ezjail_keepsnapshot="YES";; # undocumented
     ?) exerr ${ezjail_usage_create};;
   esac; done; shift $(( ${OPTIND} - 1 ))
 
@@ -744,10 +746,10 @@ create)
     # now take a copy of our template jail
     if [ "${ezjail_imagetype}" = "zfs" -a "${ezjail_use_zfs}" = "YES" ]; then
       # create ZFS filesystem first when using ZFS
-      /sbin/zfs snapshot ${ezjail_jailzfs}/newjail@_createnewjailtmp
-      /sbin/zfs send ${ezjail_jailzfs}/newjail@_createnewjailtmp | zfs receive -F ${ezjail_parentzfs}/${ezjail_hostname}
-      /sbin/zfs destroy ${ezjail_parentzfs}/${ezjail_hostname}@_createnewjailtmp
-      /sbin/zfs destroy ${ezjail_jailzfs}/newjail@_createnewjailtmp
+      /sbin/zfs snapshot ${ezjail_jailzfs}/newjail@_vanilla_newjail_
+      /sbin/zfs send ${ezjail_jailzfs}/newjail@_vanilla_newjail_ | zfs receive -F ${ezjail_parentzfs}/${ezjail_hostname}
+      [ -z "${ezjail_keepsnapshot}" ] && /sbin/zfs destroy ${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_
+      /sbin/zfs destroy ${ezjail_jailzfs}/newjail@_vanilla_newjail_
     else
       mkdir -p "${ezjail_rootdir}" && cd "${ezjail_jailtemplate}" && find . | cpio -p -v "${ezjail_rootdir}" > /dev/null
     fi
@@ -1254,6 +1256,39 @@ console)
 
   exec ${_setfib} jexec ${ezjail_id} ${ezjail_default_execute}
   ;;
+######################## ezjail-admin FREEZE ########################
+freeze)
+  shift
+  [ $# -eq 2 ] || exerr ${ezjail_usage_freeze}
+
+  ezjail="$1"
+  ezjail_flavour="$2"
+
+  fetchjailinfo ${ezjail}
+
+  # Check for existence of jail in our records
+  [ "${ezjail_config}" ] || exerr "Error: Nothing known about jail ${ezjail_name}."
+
+  # Check if jail is of zfs type
+  [ ${ezjail_imagetype} = "zfs" ] || exerr "Error: Can only freeze zfs based jails into a flavour.\n  ${ezjail_name} is not a zfs jail."
+
+  # Check if jail has been snapshotted at create time
+  /sbin/zfs list -H "${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_" >/dev/null 2>/dev/null
+  [ $? -eq 0 ] || exerr "Error: Jail ${ezjail_name} did not keep a snapshot when it was first created.\n  Use ezjail-admin create with the -k option to keep a snapshot to diff."
+
+  # For now we will not overwrite an existing flavour
+  [ -e "${ezjail_flavours_dir}/${ezjail_flavour}" ] && exerr "Error: A flavour already exists at ${ezjail_flavours_dir}/${ezjail_flavour}."
+
+  # Create the new frozen flavour's dir
+  mkdir -p "${ezjail_flavours_dir}/${ezjail_flavour}"
+
+  # Now list all files that have been added or modified
+  # TODO: This assumes no files have been deleted from when the jail was initially created. Safe assumption for now.
+  # TODO: This assumes no files have been renamed from when the jail was initially created. Not so sure.
+  /sbin/zfs diff -H "${ezjail_parentzfs}/${ezjail_hostname}@_vanilla_newjail_" "${ezjail_parentzfs}/${ezjail_hostname}" | \
+    grep -E "^(M|+)" | cut -f 2 | cpio -d -m -p -v "${ezjail_flavours_dir}/${ezjail_flavour}"
+
+;;
 ######################## ezjail-admin SNAPSHOT ########################
 snapshot)
   shift
