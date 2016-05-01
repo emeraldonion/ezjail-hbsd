@@ -3,7 +3,7 @@
 .Os FreeBSD
 .Sh NAME
 .Nm ezjail-admin
-.Nd Administrate ezjail environment 
+.Nd Administrate ezjail environment
 .Sh SYNOPSIS
 .Nm Cm install
 .Op Fl mMpPsS
@@ -115,7 +115,7 @@ utility to fetch and extract a FreeBSD ports tree from
 .Pa make.conf
 containing reasonable values to function in the jailed environment is added to
 the new jail template so all jails created from the new jail template will
-have a working ports environment. See the appendix 
+have a working ports environment. See the appendix
 .%B Using Portsnap
 in the
 .%B FreeBSD Handbook
@@ -130,7 +130,7 @@ default host
 is used. Variable:
 .Dq Li $ezjail_ftphost .
 .Pp
-It is possible to install from the 
+It is possible to install from the
 .Li disc1
 CD-ROM, or an extracted -RELEASE directory, by specifying the
 .Ar host
@@ -157,7 +157,7 @@ by default. Jailname and IP address are mandatory parameters.
 .Pp
 When a new jail is created, a corresponding new
 .Pa /etc/fstab. Ns Ar jailname
-file is also created, with a 
+file is also created, with a
 .Xr nullfs 5
 mount giving access to the base jail from the new jail.
 .Pp
@@ -342,7 +342,7 @@ interactively enter a passphrase. The jail is then not automatically started
 at boot time.
 .El
 .Ss Nm Cm console
-Attach your console to the selected jail. You are logged in as root by 
+Attach your console to the selected jail. You are logged in as root by
 default.
 .Pp
 The following options are available:
@@ -396,7 +396,6 @@ means that the jail is not automatically started.
 .Pp
 The following columns are the JID (when it is running), the IP addresses, the name and the full path directory name of the jail.
 .Ss Nm Cm start | restart | stop | startcrypto | stopcrypto Op Ar jailname ...
-.Pp
 This is a shortcut to the
 .Xr rc 8
 .Cm ezjail
@@ -410,7 +409,7 @@ Note that, if ezjail is not enabled in
 .Xr rc.conf 5
 with
 .Dq Li ezjail_enable= Ns Qq Li YES ,
-nothing happens. 
+nothing happens.
 .Pp
 Since starting crypto image jails requires interaction with the administrator, they are not run at
 boot time. Use
@@ -424,7 +423,7 @@ The following options are available:
 .Bl -tag -width indent
 .It Fl r Cm run | norun | test
 Set the jail to be automatically started or not on boot.
-
+.sp
 Note that the test parameter can be used to check if an ezjail exists, in this case the script will return with an exit code of zero and the runnable state on standard out. A non-zero exit code will be returned if the jail does not exist.
 .It Fl n Ar newname
 Rename the jail. Unless a custom root directory was given with the
@@ -456,7 +455,6 @@ the selected jail as well as
 The
 .Pa /usr/jails/ Ns Ar jailname
 directory is not deleted.
-.Pp
 .Bl -tag -width indent
 .It Fl f
 Stop the jail before deleting it.
@@ -534,9 +532,9 @@ You can set (and override in that order) the retention policy globally in your
 .Dq Li $ezjail_default_retention_policy
 .Xr ezjail.conf 5
 variable, set them per jail in its config file with their
-.Dq Li $ezjail_retention_policy 
+.Dq Li $ezjail_retention_policy
 variable or set a User property with the name
-.Dq Li ezjail:autosnap_retention 
+.Dq Li ezjail:autosnap_retention
 on the respective file systems.
 .Pp
 The policy is described by a pattern of space separated
@@ -557,7 +555,7 @@ Exactly one of the following operand must be specified:
 .It Fl b
 Build a world from source and install it as the (updated) basejail.
 .Dq make buildworld ; make installworld
-by default using the sources located at 
+by default using the sources located at
 .Pa /usr/src
 (but see the
 .Fl s
@@ -574,7 +572,7 @@ recommended to update the basejail along with the host system.
 .It Fl u
 Use
 .Xr freebsd-update 8
-to update the basejail. Note that as 
+to update the basejail. Note that as
 .Xr freebsd-update 8
 uses
 .Dq Li uname -r
@@ -649,7 +647,7 @@ filesystem is taken first.
 .Xr procfs 5 ,
 .Xr portsnap 8 .
 .Sh AUTHOR
-.An Dirk Engling 
+.An Dirk Engling
 .Aq erdgeist@erdgeist.org .
 .Pp
 The man page is based on a draft by
