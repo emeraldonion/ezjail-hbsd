@@ -221,7 +221,7 @@ that specifies whether the filesystems in
 are carried out. Set by ezjail to
 .Dq Li YES ,
 set to
-.Qd Li NO
+.Dq Li NO
 at your own risk.
 .It jail_JAILNAME_devfs_enable
 A boolean specifying whether to mount a
@@ -262,7 +262,7 @@ The parameters to pass to the tool used to decrypt file-based,
 encrypted jails. Initialized from the
 .Fl C
 option when creating such a jail, or the empty string.
-.Ir ezjail_JAILNAME_attachblocking
+.It ezjail_JAILNAME_attachblocking
 .Dq Li YES
 if the jail requires interaction with the administrator when starting
 (typically, encrypted jails that needs a password to be decrypted).
@@ -327,7 +327,7 @@ addition, the jail is configured so that on its first boot, the file
 .Pa ezjail.flavour
 is executed.
 .Pp
-As part of the install sub-command, the flavour base directory 
+As part of the install sub-command, the flavour base directory
 was created as
 .Pa /usr/jails/flavours
 and populated with an single flavour named
@@ -524,7 +524,7 @@ will be asked for the release to install. Neither the man pages nor
 the source nor the ports tree are installed. Note that the FreeBSD FTP
 server is sometimes so busy the download times out. Use the
 .Fl h Ar host
-option to specify a less loaded server, or the 
+option to specify a less loaded server, or the
 .Dq Li $ezjail_ftphost
 option in
 .Xr ezjail.conf 8 .
@@ -580,7 +580,7 @@ macdef getdir
 mreget $i/*
 .Ed
 .Pp
-Then issue this command on the command line. If the FTP download 
+Then issue this command on the command line. If the FTP download
 times out re-issue the FTP command again to resume where it left off.
 .Bd -literal -offset indent
 mkdir /usr/8.0-RELEASE
@@ -697,7 +697,7 @@ address 10.0.10.6 as an alias on the device em1 before starting the jail.
 Interesting additional tools include:
 .Dq Li ports-mgmt/jailaudit .
 .Sh AUTHOR
-.An Dirk Engling 
+.An Dirk Engling
 .Aq erdgeist@erdgeist.org .
 .Pp
 The man page is based on a draft by
