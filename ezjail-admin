@@ -463,7 +463,7 @@ filteroldsnapshots() {
     case ${win} in [0-9]);; [0-9]*[0-9mhdwy]);; *) echo "Unknown window length declaration ${win}"; return ;; esac
 
     # values default to minutes
-    case ${win} in *h) m=60;; *d) m=1440;; *w) m=10080;; *y) m=*525600;; *) m=1;; esac
+    case ${win} in *h) m=60;; *d) m=1440;; *w) m=10080;; *y) m=525600;; *) m=1;; esac
     win=$((${win%[mhdwy]}*m*60))
 
     # innerloop $repeats over windows
