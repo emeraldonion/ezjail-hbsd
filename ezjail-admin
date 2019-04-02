@@ -1131,8 +1131,8 @@ install)
   # We can use fetch to connect to the ftp host, allowing the use of proxies. We needed ftp
   # in pre-9.0-releases to make ${pkg}/* work.
   # We assume for now that jail's platform is supposed to be that of the host. That may change later.
-  ezjail_release_major=${ezjail_release%%.*}
-  [ "${ezjail_release_major}" -eq "${ezjail_release_major}" ] 2>/dev/null || exerr ${ezjail_release} does not look like a valid FreeBSD version descriptor
+  ezjail_release_major="12.0"
+    [ "${ezjail_release_major}" -eq "${ezjail_release_major}" ] 2>/dev/null || exerr ${ezjail_release} does not look like a valid FreeBSD version descriptor
   if [ ${ezjail_release_major} -ge 9 -a -n "${ezjail_installmanpages}" ]; then
     echo "Note: From FreeBSD 9.0 man pages are part of the base package"
     unset ezjail_installmanpages
