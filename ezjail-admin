@@ -343,7 +343,7 @@ ezjail_queryftpserver () {
   TIFS=${IFS}; IFS=
   #Modding for HBSD use (adding HBSD tree)
   #for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
-  for ezjail_path in pub/HardenedBSD/releases pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
+  for ezjail_path in pub/HardenedBSD/releases; do
     if [ ${ezjail_path} = "NO" ]; then
       echo "Warning: I am having problems querying the ftp server you specified (${ezjail_disturi})."
       _ret=1; break
@@ -990,8 +990,8 @@ setup|update)
   shift; while getopts :biuUpPs: arg; do case ${arg} in
     b) ezjail_installaction="buildworld installworld";;
     i) ezjail_installaction="installworld";;
-    u) ezjail_installaction="freebsd-update";;
-    U) ezjail_installaction="freebsd-upgrade";;
+    u) ezjail_installaction="hbsd-update";;
+    U) ezjail_installaction="hbsd-update-build";;
     s) ezjail_source=${OPTARG};;
     P) ezjail_provideports="YES"; ezjail_installaction="none";;
     p) ezjail_provideports="YES";;
@@ -1007,7 +1007,7 @@ setup|update)
     # check, whether ezjail has been setup correctly. existence of
     # ezjail_jailbase is our indicator
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot fill base jails ports tree before creating it.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
-  elif [ "${ezjail_installaction}" = "freebsd-update" ]; then
+  elif [ "${ezjail_installaction}" = "hbsd-update" ]; then
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot update a base jail until it is created.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
 
     # If ran from cron be kind to freebsds update servers and sleep first
@@ -1016,9 +1016,10 @@ setup|update)
         zfs snapshot ${ezjail_jailzfs}/basejail@`date +"%C%y%m%d_%H:%M:%S"`
         zfs snapshot ${ezjail_jailzfs}/newjail@`date +"%C%y%m%d_%H:%M:%S"`
     fi
-    env PAGER=/bin/cat freebsd-update -b ${ezjail_jailbase} ${ezjail_urgency} install
-    env PAGER=/bin/cat freebsd-update -b ${ezjail_jailtemplate} ${ezjail_urgency} install
-  elif [ "${ezjail_installaction}" = "freebsd-upgrade" ]; then
+    env PAGER=/bin/cat hbsd-update -b ${ezjail_jailbase} ${ezjail_urgency} install
+    env PAGER=/bin/cat hbsd-update -b ${ezjail_jailtemplate} ${ezjail_urgency} install
+  elif [ "${ezjail_installaction}" = "hbsd-update-build
+  " ]; then
     [ -d "${ezjail_jailbase}" ] || exerr "Error: base jail does not exist.\n  You cannot update a base jail until it is created.\n  Please run '${ezjail_admin} update' or '${ezjail_admin} install' first."
 
     [ -z "${ezjail_source}" ] && exerr "Error: Can not (yet automatically) infer the basejail's osversion.\n  Please run ${ezjail_admin} update -U -s X.X-RELEASE, with X.X-RELEASE being to osversion currently installed in the basejail in need of an upgrade."
@@ -1032,9 +1033,9 @@ setup|update)
 
     # Finally run freebsd-update to upgrade our basejail
     for DESTDIR in ${ezjail_jailbase} ${ezjail_jailtemplate}; do
-      env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} upgrade
+      env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat hbsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} upgrade
       while [ $? -eq 0 ]; do
-        env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat freebsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} install
+        env UNAME_r="${ezjail_osversion_source}" PAGER=/bin/cat hbsd-update -b ${DESTDIR} -r ${ezjail_osversion_target} install
       done
     done
 
@@ -1182,7 +1183,7 @@ install)
       cd "${ezjail_jailtemp}" || exerr "Error: Could not cd to ${ezjail_jailtemp}."
 
       # Try all paths as stolen from sysinstall, break on success.
-      for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
+      for ezjail_path in pub/HardenedBSD/releases; do
         # Once we tried all paths, we give up and nudge the user
         if [ "${ezjail_path}" = "NO" ]; then
           echo -e "\nCould not fetch ${pkg} from ${ezjail_proto}://${ezjail_disturi}.\n  Maybe your release (${ezjail_release}) is specified incorrectly or the host ${ezjail_disturi} does not provide that release build.\n  Use the -r option to specify an existing release or the -h option to specify an alternative ftp server." >&2
@@ -1216,7 +1217,7 @@ install)
 
   # Update to current patch level, split basejail and newjail
   if [ "${ezjail_basesystem}" ]; then
-    env PAGER=/bin/cat freebsd-update -b "${DESTDIR}" fetch install
+    env PAGER=/bin/cat hbsd-update -b "${DESTDIR}" fetch install
     ezjail_splitworld
   fi
 
