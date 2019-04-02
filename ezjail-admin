@@ -321,6 +321,7 @@ ezjail_splitworld() {
 }
 
 # The user may want to have a ports tree in basejail
+# This section has been modified to remove the use of portsnap for HBSD
 ezjail_updateports () {
   #local _portsnap_fetch="fetch"
 
@@ -339,7 +340,9 @@ ezjail_queryftpserver () {
   unset _ret
   echo -n "Querying your ftp-server... "
   TIFS=${IFS}; IFS=
-  for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
+  #Modding for HBSD use (adding HBSD tree)
+  #for ezjail_path in pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
+  for ezjail_path in pub/HardenedBSD/releases pub/FreeBSD/releases pub/FreeBSD/snapshot pub/FreeBSD releases snapshots pub/FreeBSD-Archive/old-releases NO; do
     if [ ${ezjail_path} = "NO" ]; then
       echo "Warning: I am having problems querying the ftp server you specified (${ezjail_disturi})."
       _ret=1; break
@@ -1087,7 +1090,9 @@ install)
 
   ezjail_installarch=`uname -p`
   ezjail_installplatform=`uname -m`
-  : ${ezjail_ftphost="ftp.freebsd.org"}
+  #Mod HBSD
+  #: ${ezjail_ftphost="ftp.freebsd.org"}
+  : ${ezjail_ftphost="http://installer.hardenedbsd.org"}
   ezjail_proto=${ezjail_ftphost%%://*}
   [ "${ezjail_proto}" = "${ezjail_ftphost}" ] && ezjail_proto=ftp
   ezjail_disturi=${ezjail_ftphost#*://}
