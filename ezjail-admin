@@ -322,7 +322,7 @@ ezjail_splitworld() {
 
 # The user may want to have a ports tree in basejail
 ezjail_updateports () {
-  local _portsnap_fetch="fetch"
+  #local _portsnap_fetch="fetch"
 
   [ -z "$TERM" -o "$TERM" = "dumb" ] && _portsnap_fetch="cron"
   #portsnap not used on HBSD
