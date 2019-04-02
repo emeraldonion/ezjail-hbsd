@@ -325,9 +325,13 @@ ezjail_updateports () {
   local _portsnap_fetch="fetch"
 
   [ -z "$TERM" -o "$TERM" = "dumb" ] && _portsnap_fetch="cron"
-  portsnap ${_portsnap_fetch}
+  #portsnap not used on HBSD
+  #portsnap ${_portsnap_fetch}
+  git pull origin master --git-dir="${ezjail_jailbase}/usr/ports"
   [ -d "${ezjail_jailbase}/usr/ports" ] && ezjail_portsnapaction="update"
-  portsnap -p "${ezjail_jailbase}/usr/ports" ${ezjail_portsnapaction:-"extract"} || exerr "Error: Updating ports failed."
+  #portsnap not used on HBSD
+  #portsnap -p "${ezjail_jailbase}/usr/ports" ${ezjail_portsnapaction:-"extract"} || exerr "Error: Updating ports failed."
+  git clone https://github.com/HardenedBSD/hardenedbsd-ports.git "${ezjail_jailbase}/usr/ports"
 }
 
 # Try to fetch the list of releases the server provides
