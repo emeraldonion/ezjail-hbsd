@@ -328,7 +328,8 @@ ezjail_updateports () {
   [ -z "$TERM" -o "$TERM" = "dumb" ] && _portsnap_fetch="cron"
   #portsnap not used on HBSD
   #portsnap ${_portsnap_fetch}
-  git pull origin master --git-dir="${ezjail_jailbase}/usr/ports"
+  git --git-dir="${ezjail_jailbase}/usr/ports"/.git --work-tree="${ezjail_jailbase}/usr/ports" pull origin master
+
   [ -d "${ezjail_jailbase}/usr/ports" ] && ezjail_portsnapaction="update"
   #portsnap not used on HBSD
   #portsnap -p "${ezjail_jailbase}/usr/ports" ${ezjail_portsnapaction:-"extract"} || exerr "Error: Updating ports failed."
